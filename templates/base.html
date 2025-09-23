@@ -2,35 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Bridgeworks — {% block title %}{% endblock %}</title>
 
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"/>
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
+  <!-- Plotly base (pages may load a newer bundle if needed) -->
+  <script src="https://cdn.plot.ly/plotly-2.18.1.min.js"></script>
+
   {% block extra_head %}{% endblock %}
 </head>
 <body>
   <!-- NAV -->
-  <header class="nav">
+  <header class="nav" role="banner">
     <div class="nav-container">
-      <a href="/" class="nav-logo-link" aria-label="Bridgeworks Collective home">
-        <img src="{{ url_for('static', filename='bridgeworks-logo.png') }}" alt="Bridgeworks Collective" class="nav-logo" />
+      <a href="/" class="nav-logo-link" aria-label="Bridgeworks home">
+        <img src="{{ url_for('static', filename='bridgeworks-logo.png') }}"
+             alt="Bridgeworks Collective" class="nav-logo"/>
       </a>
 
       <div class="brand">Bridgeworks Collective</div>
 
       <!-- Mobile toggle -->
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="siteMenu">
+      <button class="nav-toggle" aria-controls="primary-navigation" aria-expanded="false" aria-label="Menu">
         <span class="hamburger"></span>
       </button>
 
-      <!-- Menu -->
-      <ul class="nav-menu" id="siteMenu">
+      <!-- Primary nav -->
+      <ul id="primary-navigation" class="nav-menu" role="navigation">
         <li><a href="/home">Home</a></li>
         <li><a href="/">Schedule</a></li>
         <li><a href="/survey">Survey</a></li>
@@ -38,7 +39,7 @@
     </div>
   </header>
 
-  <!-- CONTENT -->
+  <!-- MAIN -->
   <main class="container" role="main">
     {% block content %}{% endblock %}
   </main>
@@ -46,42 +47,41 @@
   <!-- FOOTER -->
   <footer class="footer">© 2025 Bridgeworks Collective</footer>
 
-  <!-- Mobile menu JS -->
+  <!-- Small, CSP-friendly inline script to drive the mobile dropdown -->
   <script>
-    (function () {
-      const btn  = document.getElementById('navToggle');
-      const menu = document.getElementById('siteMenu');
+  (function () {
+    var toggle = document.querySelector('.nav-toggle');
+    var menu   = document.querySelector('.nav-menu');
+    if (!toggle || !menu) return;
 
-      function closeMenu() {
-        btn.classList.remove('active');
-        menu.classList.remove('active');
-        btn.setAttribute('aria-expanded', 'false');
-      }
-      function openMenu() {
-        btn.classList.add('active');
-        menu.classList.add('active');
-        btn.setAttribute('aria-expanded', 'true');
-      }
+    function closeMenu() {
+      toggle.classList.remove('active');
+      menu.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('nav-open');
+    }
 
-      btn.addEventListener('click', () => {
-        const isOpen = btn.classList.contains('active');
-        (isOpen ? closeMenu : openMenu)();
-      });
+    toggle.addEventListener('click', function () {
+      var open = !toggle.classList.contains('active');
+      toggle.classList.toggle('active', open);
+      menu.classList.toggle('active', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      document.body.classList.toggle('nav-open', open);
+    });
 
-      // Close after clicking a link (mobile)
-      menu.addEventListener('click', (e) => {
-        if (e.target.tagName === 'A') closeMenu();
-      });
+    // Close when a link is clicked (mobile)
+    menu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', closeMenu);
+    });
 
-      // Close if resizing to desktop
-      const mq = window.matchMedia('(min-width: 861px)');
-      mq.addEventListener('change', e => { if (e.matches) closeMenu(); });
-
-      // Escape key closes
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeMenu();
-      });
-    })();
+    // Reset state on resize to desktop
+    var mq = window.matchMedia('(min-width: 861px)');
+    mq.addEventListener ? mq.addEventListener('change', function (e) {
+      if (e.matches) closeMenu();
+    }) : window.addEventListener('resize', function () {
+      if (window.innerWidth >= 861) closeMenu();
+    });
+  })();
   </script>
 
   {% block extra_scripts %}{% endblock %}
