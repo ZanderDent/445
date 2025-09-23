@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block title %}TSOLOM BRIDGE PROJECT – Construction Tracker{% endblock %}
+
+{% block extra_head %}
+  <!-- Load one Plotly bundle here (avoid loading in base) -->
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <style>
+    .construction-tracker-page .header {
+      margin: 1rem 0 1.5rem;
+      padding: 1rem;
+      background: #111827;
+      color: #f9fafb;
+      border: 1px solid #1f2937;
+      border-radius: .5rem;
+    }
+    .construction-tracker-page .meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap: .75rem;
+      margin-top: .5rem;
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-size: .95rem;
+    }
+    .construction-tracker-page .meta div {
+      background: #0b1220;
+      border: 1px solid #233047;
+      border-radius: .5rem;
+      padding: .75rem;
+    }
+    .construction-tracker-page .box {
+      background: #0f172a;
+      border: 1px solid #233047;
+      border-radius: .75rem;
+      padding: 1rem;
+      color: #e5e7eb;
+    }
+    .construction-tracker-page h2 {
+      margin: .25rem 0 1rem;
+      color: #00a886;
+      letter-spacing: .2px;
+    }
+    .construction-tracker-page table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .95rem;
+    }
+    .construction-tracker-page th, .construction-tracker-page td {
+      border: 1px solid #233047;
+      padding: .55rem .6rem;
+      vertical-align: top;
+    }
+    .construction-tracker-page th {
+      background: #162033;
+      color: #e5e7eb;
+      text-align: left;
+    }
+    .badge {
+      display: inline-block; padding: .2rem .5rem; border-radius: .375rem; font-size: .8rem; border:1px solid #2b3b57;
+      background:#0b1220; color:#cbd5e1;
+    }
+    @media (max-width: 900px) {
+      .construction-tracker-page .meta { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<section class="construction-tracker-page" data-aos="fade-in" data-aos-duration="800">
+  <div class="header">
+    <h1 id="proj-title" style="font-size:1.6rem; font-weight:700; margin:0;">TSOLOM BRIDGE PROJECT</h1>
+    <div class="meta">
+      <div><strong>Project Manager</strong><br><span id="proj-manager">BRIDGEWORKS COLLECTIVE</span></div>
+      <div><strong>Start Date</strong><br><span id="proj-start"></span></div>
+      <div><strong>End Date</strong><br><span id="proj-end"></span></div>
+      <div><strong>Status</strong><br><span class="badge">Planned</span></div>
+    </div>
+  </div>
+
+  <!-- Gantt -->
+  <div class="box" style="margin-bottom: 1rem;">
+    <h2>Project Gantt</h2>
+    <div id="gantt" style="min-height: 520px;"></div>
+  </div>
+
+  <!-- Task table -->
+  <div class="box">
+    <h2>Schedule Details & Budgets</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Phase</th>
+          <th>Task</th>
+          <th>Start</th>
+          <th>Finish</th>
+          <th>Duration (days)</th>
+          <th>Budget (CAD)</th>
+          <th>Resources</th>
+          <th>Schedule</th>
+        </tr>
+      </thead>
+      <tbody id="task-table-body"></tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(async function () {
+  // -------- load schedule.json ----------
+  const sched = await (await fetch('/api/schedule.json')).json();
+  document.getElementById('proj-title').textContent = sched.project || 'Project';
+  document.getElementById('proj-manager').textContent = sched.manager || '';
+  document.getElementById('proj-start').textContent  = sched.start  || '';
+  document.getElementById('proj-end').textContent    = sched.finish || '';
+
+  const tasks = (sched.tasks || []).map(t => ({
+    phase: t.phase || "",
+    task:  t.task || t.activityName || "",
+    start: t.start,
+    finish:t.finish,
+    duration: t.duration,
+    budget: t.budget,
+    schedule: t.schedule,
+    resources: t.resources
+  }));
+
+  // -------- build table ----------
+  const tbody = document.getElementById('task-table-body');
+  tbody.innerHTML = '';
+  tasks.forEach(t => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${t.phase ?? ''}</td>
+      <td>${t.task ?? ''}</td>
+      <td>${t.start ?? ''}</td>
+      <td>${t.finish ?? ''}</td>
+      <td>${t.duration ?? ''}</td>
+      <td>${t.budget != null ? '$' + Number(t.budget).toLocaleString() : ''}</td>
+      <td>${t.resources ?? ''}</td>
+      <td>${t.schedule ?? ''}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // -------- Gantt (bars only — no CP, no legend) ----------
+  const MS_PER_DAY = 24*3600*1000;
+  const phaseColors = {
+    "Conceptual Design":"#00a886",
+    "Preliminary Design":"#22c55e",
+    "Detailed Design":"#14b8a6"
+  };
+  const phases = [...new Set(tasks.map(t => t.phase))];
+
+  function widthMs(s,f){
+    if (!s || !f) return MS_PER_DAY;
+    // inclusive by day
+    return (new Date(f).getTime() - new Date(s).getTime()) + MS_PER_DAY;
+  }
+
+  const barTraces = phases.map(ph => {
+    const rows = tasks.filter(t => t.phase === ph);
+    if (!rows.length) return null;
+    return {
+      type: 'bar',
+      orientation: 'h',
+      name: ph,
+      y: rows.map(r => r.task),
+      x: rows.map(r => widthMs(r.start, r.finish)),  // width in ms
+      base: rows.map(r => r.start),                  // start date
+      customdata: rows.map(r => r.finish),           // finish date for hover
+      marker: {
+        color: phaseColors[ph] || '#3b82f6',
+        line: { color: '#0a0f1a', width: 1 }
+      },
+      hovertemplate:
+        `<b>%{y}</b><br>${ph || 'Phase'}<br>`+
+        `Start: %{base|%Y-%m-%d}<br>`+
+        `Finish: %{customdata|%Y-%m-%d}<extra></extra>`,
+      showlegend: false,
+      offsetgroup: ph || 'phase'
+    };
+  }).filter(Boolean);
+
+  const isMobile = window.matchMedia("(max-width: 720px)").matches;
+
+  const layout = {
+    title: { text: (sched.project || 'Schedule'), x: 0.5, font: { size: isMobile ? 16 : 20, color: '#cbd5e1' } },
+    xaxis: {
+      type: 'date',
+      gridcolor: '#1f2937',
+      tickfont: { color: '#cbd5e1', size: isMobile ? 10 : 12 },
+      title: { text: 'Date', font: { color: '#cbd5e1', size: isMobile ? 11 : 14 } }
+    },
+    yaxis: {
+      automargin: true,
+      tickfont: { color: '#cbd5e1', size: isMobile ? 10 : 12 },
+      title: { text: 'Tasks', font: { color: '#cbd5e1', size: isMobile ? 11 : 14 } },
+      categoryorder: 'array',
+      categoryarray: tasks.map(t => t.task)
+    },
+    paper_bgcolor: '#0f172a',
+    plot_bgcolor: '#0f172a',
+    margin: { l: isMobile ? 140 : 240, r: 30, t: isMobile ? 50 : 60, b: 60 },
+    height: Math.max(isMobile ? 420 : 520, tasks.length * (isMobile ? 26 : 32)),
+    barmode: 'overlay',
+    bargap: 0.2,
+    showlegend: false,        // <-- no legend
+    hovermode: 'closest'
+  };
+
+  Plotly.newPlot('gantt', barTraces, layout, {
+    responsive: true,
+    displaylogo: false,
+    modeBarButtonsToRemove: ['toImage','lasso2d','select2d']
+  });
+})();
+</script>
+{% endblock %}

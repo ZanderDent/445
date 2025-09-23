@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Bridgeworks — {% block title %}{% endblock %}</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"/>
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <!-- NAV -->
+  <header class="nav">
+    <div class="nav-container">
+      <a href="/" class="nav-logo-link" aria-label="Bridgeworks Collective home">
+        <img src="{{ url_for('static', filename='bridgeworks-logo.png') }}" alt="Bridgeworks Collective" class="nav-logo" />
+      </a>
+
+      <div class="brand">Bridgeworks Collective</div>
+
+      <!-- Mobile toggle -->
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="siteMenu">
+        <span class="hamburger"></span>
+      </button>
+
+      <!-- Menu -->
+      <ul class="nav-menu" id="siteMenu">
+        <li><a href="/home">Home</a></li>
+        <li><a href="/">Schedule</a></li>
+        <li><a href="/survey">Survey</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="container" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">© 2025 Bridgeworks Collective</footer>
+
+  <!-- Mobile menu JS -->
+  <script>
+    (function () {
+      const btn  = document.getElementById('navToggle');
+      const menu = document.getElementById('siteMenu');
+
+      function closeMenu() {
+        btn.classList.remove('active');
+        menu.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+      function openMenu() {
+        btn.classList.add('active');
+        menu.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+
+      btn.addEventListener('click', () => {
+        const isOpen = btn.classList.contains('active');
+        (isOpen ? closeMenu : openMenu)();
+      });
+
+      // Close after clicking a link (mobile)
+      menu.addEventListener('click', (e) => {
+        if (e.target.tagName === 'A') closeMenu();
+      });
+
+      // Close if resizing to desktop
+      const mq = window.matchMedia('(min-width: 861px)');
+      mq.addEventListener('change', e => { if (e.matches) closeMenu(); });
+
+      // Escape key closes
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+      });
+    })();
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

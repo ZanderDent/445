@@ -1,0 +1,168 @@
+{
+  "project": " Tsolum River Bridge Project - Proposed Schedule",
+  "manager": "The Bridgeworks Collective [Team 7: UBC Civil Engineering Capststone [Civl 445]]",
+  "start": "2025-09-15",
+  "finish": "2026-04-20",
+  "tasks": [
+    {
+      "phase": "",
+      "task": "Startup & Info Gathering",
+      "start": "2025-09-15",
+      "finish": "2025-09-20",
+      "duration": 6,
+      "budget": 4500.0,
+      "schedule": "On Track",
+      "resources": "PM, Research Lead"
+    },
+    {
+      "phase": "",
+      "task": "Design Proposal Submission",
+      "start": "2025-09-21",
+      "finish": "2025-09-25",
+      "duration": 5,
+      "budget": 12000.0,
+      "schedule": "On Track",
+      "resources": "UX, UI Designer, Product Owner"
+    },
+    {
+      "phase": "",
+      "task": "Option Development (Truss, Girder, Cable-stayed, etc.)",
+      "start": "2025-09-26",
+      "finish": "2025-10-05",
+      "duration": 10,
+      "budget": 22000.0,
+      "schedule": "On Track",
+      "resources": "Structural Lead, Concept Designer"
+    },
+    {
+      "phase": "",
+      "task": "MAE + WDM Evaluation",
+      "start": "2025-10-06",
+      "finish": "2025-10-06",
+      "duration": 1,
+      "budget": 22000.0,
+      "schedule": "On Track",
+      "resources": "Structural, Environmental, Cost Analysts"
+    },
+    {
+      "phase": "",
+      "task": "Conceptual Report & Presentation",
+      "start": "2025-10-07",
+      "finish": "2025-10-25",
+      "duration": 19,
+      "budget": 25000.0,
+      "schedule": "Not Started",
+      "resources": "PM, Documentation Lead"
+    },
+    {
+      "phase": "",
+      "task": "Preferred Option Development",
+      "start": "2025-11-01",
+      "finish": "2025-11-15",
+      "duration": 15,
+      "budget": 8000.0,
+      "schedule": "Not Started",
+      "resources": "Structural & Geotech Leads"
+    },
+    {
+      "phase": "",
+      "task": "Stuctural, Geotech & Hydrotechnical Feasibility",
+      "start": "2025-11-16",
+      "finish": "2025-11-25",
+      "duration": 10,
+      "budget": 6500.0,
+      "schedule": "Not Started",
+      "resources": "Geotech, Hydro Lead"
+    },
+    {
+      "phase": "",
+      "task": "Iteration & Option Re-evaluation",
+      "start": "2025-11-26",
+      "finish": "2025-11-30",
+      "duration": 5,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "PM, Structural Lead"
+    },
+    {
+      "phase": "",
+      "task": "Constructability & Access Study (updated with iterations)",
+      "start": "2025-12-01",
+      "finish": "2025-12-05",
+      "duration": 5,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "Constructability Lead, Logistics"
+    },
+    {
+      "phase": "",
+      "task": "Preliminary Report & Class C Estimate",
+      "start": "2025-12-06",
+      "finish": "2025-12-15",
+      "duration": 10,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "PM, Cost Lead"
+    },
+    {
+      "phase": "",
+      "task": "Hydrotechnical & Scour Design",
+      "start": "2026-01-10",
+      "finish": "2026-01-25",
+      "duration": 16,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "Hydro Engineer, Geotech"
+    },
+    {
+      "phase": "",
+      "task": "Geotechnical Design & Foundations",
+      "start": "2026-01-26",
+      "finish": "2026-02-15",
+      "duration": 21,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "Geotech Lead, Structural"
+    },
+    {
+      "phase": "",
+      "task": "Structural Analysis & Member Design",
+      "start": "2026-02-16",
+      "finish": "2026-03-10",
+      "duration": 23,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "Structural Team"
+    },
+    {
+      "phase": "",
+      "task": "Detailing & Suicide-Barrier Integration",
+      "start": "2026-03-11",
+      "finish": "2026-03-25",
+      "duration": 15,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "Structural, Safety Lead"
+    },
+    {
+      "phase": "",
+      "task": "Trail Integration & Environmental Permitting",
+      "start": "2026-03-26",
+      "finish": "2026-04-05",
+      "duration": 11,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "Environmental, Landscape, PM"
+    },
+    {
+      "phase": "",
+      "task": "Final Report, Drawings & Class A Estimate",
+      "start": "2026-04-06",
+      "finish": "2026-04-20",
+      "duration": 15,
+      "budget": 3200.0,
+      "schedule": "Not Started",
+      "resources": "PM, Documentation Lead"
+    }
+  ]
+}
