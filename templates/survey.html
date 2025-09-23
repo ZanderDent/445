@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Community Survey{% endblock %}
+
+{% block extra_head %}
+<style>
+  .survey-wrap{
+    background: var(--bg-soft);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--radius);
+    padding: clamp(.75rem, 2vw, 1rem);
+    margin: 1rem 0;
+  }
+  .survey-wrap h1{ margin: .25rem 0 0.5rem; }
+  /* Responsive iframe container */
+  .survey-frame {
+    position: relative;
+    width: 100%;
+    /* 16:9 base; Google Forms is taller—give extra height on mobile */
+    padding-top: 140%;
+    border: 1px solid var(--panel-line);
+    border-radius: 10px;
+    overflow: hidden;
+    background:#0b1220;
+  }
+  .survey-frame iframe{
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: 0;
+  }
+  @media (min-width: 640px){
+    .survey-frame{ padding-top: 120%; }
+  }
+  @media (min-width: 960px){
+    .survey-frame{ padding-top: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="survey-wrap">
+  <h1>Bridge Type Survey</h1>
+  <p class="muted" style="margin-top:.25rem;">
+    Help our capstone team evaluate conceptual options—share which bridge type you think performs best
+    or looks the coolest for the Tsolum River site.
+  </p>
+
+  <div class="survey-frame">
+    <iframe
+      src="https://docs.google.com/forms/d/e/1FAIpQLSejIzo3zLrJ8HdUcVXNe62_tQ5d43j1iubIyc3HrQz5J_FBAw/viewform?embedded=true"
+      allowfullscreen
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="Tsolum River Bridge – Concept Survey">
+    </iframe>
+  </div>
+</section>
+
+<!-- :contentReference[oaicite:1]{index=1} -->
+{% endblock %}

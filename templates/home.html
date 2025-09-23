@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Page wrapper */
+  .home-hero {
+    background-position: center;
+    background-size: 120px auto;
+    background-repeat: no-repeat;
+    border: 1px solid var(--panel-line);
+    border-radius: var(--radius);
+    padding: clamp(1rem, 2.5vw, 2rem);
+    margin: 1rem 0 1.25rem;
+  }
+  .home-hero h1 { margin: 0 0 .35rem; font-size: clamp(1.5rem, 3.5vw, 2.1rem); }
+  .home-hero p  { margin: 0; color: var(--muted); max-width: 65ch; }
+
+  /* Team grid */
+  .team {
+    background: var(--bg-soft);
+    border: 1px solid var(--panel-line);
+    border-radius: var(--radius);
+    padding: clamp(.75rem, 2vw, 1rem);
+  }
+  .team h2 { margin-bottom: .5rem; }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: clamp(.75rem, 2vw, 1rem);
+    margin: .5rem 0 0;
+  }
+  @media (max-width: 900px){ .team-grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+  @media (max-width: 560px){ .team-grid{ grid-template-columns: 1fr; } }
+
+  .member {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: .85rem;
+    align-items: center;
+    background: #0b1220;
+    border: 1px solid var(--panel-line);
+    border-radius: 12px;
+    padding: .75rem;
+  }
+  .avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 1px solid var(--panel-line);
+    background:
+      radial-gradient(85% 85% at 30% 25%, rgba(255,255,255,.05), transparent 60%),
+      linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
+    display: grid; place-items: center;
+    color: #0b0f1a; font-weight: 800; font-size: 20px; letter-spacing: .3px;
+  }
+  .member h3 { margin: 0; font-size: 1.05rem; }
+  .member p  { margin: .15rem 0 0; color: var(--muted); font-size: .92rem; }
+
+  /* CTA cards */
+  .cta-grid {
+    display: grid; gap: 1rem; margin-top: 1rem;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+  @media (max-width: 700px){ .cta-grid{ grid-template-columns: 1fr; } }
+  .cta {
+    background: var(--bg-soft); border: 1px solid var(--panel-line); border-radius: var(--radius);
+    padding: 1rem;
+  }
+  .cta h3{ margin:.25rem 0 .35rem; }
+  .cta p{ margin:.25rem 0 .75rem; color: var(--muted); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="home-hero">
+  <h1>Tsolum River Bridge — Capstone Team</h1>
+  <p>
+    We’re a CIVL 445/446 capstone group exploring concept and detailed design options for a new
+    multi-use crossing that reconnects the One Spot Trail over the Tsolum River for the Comox Valley
+    Regional District, with engineering support from ISL. 
+  </p>
+</section>
+
+<section class="team">
+  <h2>Meet the Team</h2>
+  <div class="team-grid">
+    <!-- Each “avatar” is a styled placeholder; drop in real photos later by replacing the inner div with an <img> of the same classes -->
+    <article class="member">
+      <div class="avatar" aria-hidden="true">AC</div>
+      <div>
+        <h3>Ahnaf Chowdhury</h3>
+        <p>Capstone Team Member</p>
+      </div>
+    </article>
+
+    <article class="member">
+      <div class="avatar" aria-hidden="true">DB</div>
+      <div>
+        <h3>Diego Boilley</h3>
+        <p>Capstone Team Member</p>
+      </div>
+    </article>
+
+    <article class="member">
+      <div class="avatar" aria-hidden="true">FS</div>
+      <div>
+        <h3>Felix Stewart</h3>
+        <p>Capstone Team Member</p>
+      </div>
+    </article>
+
+    <article class="member">
+      <div class="avatar" aria-hidden="true">ZD</div>
+      <div>
+        <h3>Zander Dent</h3>
+        <p>Capstone Team Member</p>
+      </div>
+    </article>
+
+    <article class="member">
+      <div class="avatar" aria-hidden="true">LW</div>
+      <div>
+        <h3>Luke Winnig</h3>
+        <p>Capstone Team Member</p>
+      </div>
+    </article>
+
+    <article class="member">
+      <div class="avatar" aria-hidden="true">GC</div>
+      <div>
+        <h3>Gabriel Comla</h3>
+        <p>Capstone Team Member</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="cta-grid">
+    <div class="cta">
+      <h3>See the Schedule</h3>
+      <p>View deliverables, milestones, and our draft design phases.</p>
+      <a class="btn primary" href="/">Open Gantt</a>
+    </div>
+    <div class="cta">
+      <h3>Vote on the Concept</h3>
+      <p>Tell us which bridge concept you think best fits the site and community.</p>
+      <a class="btn secondary" href="/survey">Take the Survey</a>
+    </div>
+  </div>
+</section>
+
+<!-- :contentReference[oaicite:0]{index=0} -->
+{% endblock %}
