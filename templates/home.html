@@ -43,7 +43,7 @@
     border-radius: 12px;
     padding: .75rem;
   }
-  .avatar {
+.avatar {
     width: 72px; height: 72px; border-radius: 50%;
     border: 1px solid var(--panel-line);
     background:
@@ -51,6 +51,11 @@
       linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
     display: grid; place-items: center;
     color: #0b0f1a; font-weight: 800; font-size: 20px; letter-spacing: .3px;
+  }
+  .avatar, .avatar-img {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 1px solid var(--panel-line);
+    object-fit: cover;
   }
   .member h3 { margin: 0; font-size: 1.05rem; }
   .member p  { margin: .15rem 0 0; color: var(--muted); font-size: .92rem; }
@@ -83,7 +88,6 @@
 <section class="team">
   <h2>Meet the Team</h2>
   <div class="team-grid">
-    <!-- Each “avatar” is a styled placeholder; drop in real photos later by replacing the inner div with an <img> of the same classes -->
     <article class="member">
       <div class="avatar" aria-hidden="true">AC</div>
       <div>
@@ -93,7 +97,7 @@
     </article>
 
     <article class="member">
-      <div class="avatar" aria-hidden="true">DB</div>
+      <img src="{{ url_for('static', filename='diego.jpeg') }}" alt="Diego Boilley" class="avatar-img">
       <div>
         <h3>Diego Boilley</h3>
         <p>Capstone Team Member</p>
@@ -101,7 +105,7 @@
     </article>
 
     <article class="member">
-      <div class="avatar" aria-hidden="true">FS</div>
+      <img src="{{ url_for('static', filename='felix.png') }}" alt="Felix Stewart" class="avatar-img">
       <div>
         <h3>Felix Stewart</h3>
         <p>Capstone Team Member</p>
@@ -109,7 +113,7 @@
     </article>
 
     <article class="member">
-      <div class="avatar" aria-hidden="true">ZD</div>
+      <img src="{{ url_for('static', filename='zander.JPG') }}" alt="Zander Dent" class="avatar-img">
       <div>
         <h3>Zander Dent</h3>
         <p>Capstone Team Member</p>
@@ -125,7 +129,7 @@
     </article>
 
     <article class="member">
-      <div class="avatar" aria-hidden="true">GC</div>
+      <img src="{{ url_for('static', filename='gabe.jpeg') }}" alt="Gabriel Comla" class="avatar-img">
       <div>
         <h3>Gabriel Comla</h3>
         <p>Capstone Team Member</p>
@@ -146,6 +150,4 @@
     </div>
   </div>
 </section>
-
-<!-- :contentReference[oaicite:0]{index=0} -->
 {% endblock %}
