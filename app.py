@@ -90,7 +90,7 @@ def cpm(tasks):
 @app.route("/")
 def home():
     return render_template("schedule.html")
-
+    
 @app.route("/home")
 def homepage():
     return render_template("home.html")
@@ -98,6 +98,10 @@ def homepage():
 @app.route("/survey")
 def survey():
     return render_template("survey.html")
+
+@app.route("/budget")
+def budger():
+    return render_template("budget.html")
 
 @app.route("/api/schedule.json")
 def schedule_json():

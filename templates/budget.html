@@ -1,0 +1,174 @@
+<!-- templates/budget.html -->
+{% extends "base.html" %}
+{% block title %}Budget — Cable-Stayed Option{% endblock %}
+
+{% block extra_head %}
+<style>
+  .budget-page .header{
+    margin:1rem 0 1.25rem; padding:1rem;
+    background:var(--panel); border:var(--line); border-radius:var(--radius);
+  }
+  .budget-page .muted{ color:var(--muted); }
+
+  /* Summary cards */
+  .budget-page .summary{
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:.75rem; margin-bottom:1rem;
+  }
+  .budget-card{
+    background:var(--bg-soft); border:var(--line); border-radius:12px;
+    padding:.9rem; box-shadow:var(--shadow);
+  }
+  .budget-card h3{ margin:0 0 .35rem; font-size:.95rem; color:var(--muted); font-weight:600; }
+  .budget-card .value{ font-size:1.15rem; font-weight:700; letter-spacing:.2px; }
+
+  /* Sections & tables */
+  .box{ background:var(--bg-soft); border:var(--line); border-radius:14px; padding:1rem; color:var(--text); margin-bottom:1rem; }
+  .table-wrap{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:10px; }
+  table{ width:100%; border-collapse:collapse; }
+  th,td{ border:var(--line); padding:.6rem .7rem; vertical-align:top; }
+  th{ background:#162033; color:var(--text); text-align:left; }
+  .num, .money{ text-align:right; white-space:nowrap; }
+  .w-240{ min-width:240px; }
+  .w-260{ min-width:260px; }
+  .w-220{ min-width:220px; }
+
+  .budget-note{
+    background:#0b1220; border:var(--line); border-left:4px solid var(--accent);
+    border-radius:10px; padding:.8rem 1rem; color:var(--text);
+  }
+
+  /* Mobile */
+  @media (max-width:980px){ .budget-page .summary{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:640px){
+    .budget-page .summary{ grid-template-columns:1fr; }
+    th,td{ white-space:normal; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="budget-page">
+  <div class="header">
+    <h1 style="margin:0 0 .25rem;">Cable-Stayed Option — Design Fee & Budget</h1>
+    <div class="muted">Scope includes towers, stay-cable system, staged construction analysis, aero-serviceability, and damping considerations.</div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="budget-card">
+      <h3>Subtotal (Fees)</h3>
+      <div class="value">$889,910.00</div>
+    </div>
+    <div class="budget-card">
+      <h3>Normal Disbursements (8%)</h3>
+      <div class="value">$71,192.80</div>
+    </div>
+    <div class="budget-card">
+      <h3>Subtotal (Fees + Disbursements)</h3>
+      <div class="value">$1,230,102.80</div>
+    </div>
+    <div class="budget-card">
+      <h3>Estimated Total (incl. Taxes)</h3>
+      <div class="value">$1,301,607.94</div>
+    </div>
+  </div>
+
+  <!-- Fees -->
+  <div class="box">
+    <h2>Professional Fees</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="w-240">Role</th>
+            <th class="num">Hours</th>
+            <th class="num">Rate</th>
+            <th class="money">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Project Manager (E5)</td><td class="num">250</td><td class="num">$299.00</td><td class="money">$74,750.00</td></tr>
+          <tr><td>Senior Engineers (E4)</td><td class="num">720</td><td class="num">$274.00</td><td class="money">$197,280.00</td></tr>
+          <tr><td>Project Engineers (E3)</td><td class="num">1,800</td><td class="num">$219.00</td><td class="money">$394,200.00</td></tr>
+          <tr><td>Technologists (T4/T5 avg)</td><td class="num">980</td><td class="num">$216.00</td><td class="money">$211,680.00</td></tr>
+          <tr><td>Admin</td><td class="num">150</td><td class="num">$80.00</td><td class="money">$12,000.00</td></tr>
+          <tr>
+            <th>Subtotal (fees)</th>
+            <th class="num">5,760</th>
+            <th class="num">—</th>
+            <th class="money">$889,910.00</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Disbursements -->
+  <div class="box">
+    <h2>Disbursements</h2>
+    <div class="table-wrap" style="margin-bottom:.75rem;">
+      <table>
+        <thead>
+          <tr>
+            <th class="w-260">Type</th>
+            <th class="money">Estimated Cost</th>
+            <th class="num">Markup</th>
+            <th class="money">Cost (to Client)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Project Specific Disbursements</td><td class="money">$70,000.00</td><td class="num">10.00%</td><td class="money">$77,000.00</td></tr>
+          <tr><td>Subconsultants (Geotech + Wind/Seismic)</td><td class="money">$120,000.00</td><td class="num">5.00%</td><td class="money">$126,000.00</td></tr>
+          <tr><td>Subcontractors (Site prep, traffic, drilling)</td><td class="money">$60,000.00</td><td class="num">10.00%</td><td class="money">$66,000.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">Normal Disbursements (8% of Fees)</td>
+            <td class="money">$71,192.80</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Subtotal (Fees + Disbursements)</td>
+            <td class="money">$1,230,102.80</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Taxes & Total -->
+  <div class="box">
+    <h2>Taxes & Total</h2>
+    <div class="table-wrap" style="margin-bottom:.75rem;">
+      <table>
+        <thead>
+          <tr>
+            <th class="w-220">Tax Type</th>
+            <th>Applied On</th>
+            <th class="num">Rate</th>
+            <th class="money">Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>GST</td><td>Fees + Disbursements</td><td class="num">5.00%</td><td class="money">$61,505.14</td></tr>
+          <tr><td>PST</td><td>Software + Goods</td><td class="num">7.00%</td><td class="money">$10,000.00</td></tr>
+          <tr>
+            <th colspan="3">Estimated Total Design Fee (Cable-Stayed)</th>
+            <th class="money">$1,301,607.94</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="budget-note">
+      <p style="margin:.2rem 0;"><strong>Why lower than arch?</strong> For this context, the cable-stayed option (towers + stays) streamlines detailing compared with rib/thrust-block design and checks. Reference arch estimate: <strong>$1,315,721.20</strong>.</p>
+      <p style="margin:.2rem 0;"><strong>Why lower than hybrid suspension?</strong> A hybrid suspension alternative adds main cables, hangers, saddles, large anchorages, catenary geometry, extra erection modelling, and interaction studies (load sharing, stiffness compatibility, vibration, redundancy), plus more drawings and independent checks. Reference hybrid suspension estimate: <strong>$1,839,013.06</strong>.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
