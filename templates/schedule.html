@@ -1,219 +1,234 @@
+<!-- templates/construction_tracker.html -->
 {% extends "base.html" %}
-{% block title %}TSOLOM BRIDGE PROJECT – Construction Tracker{% endblock %}
+{% block title %}TSOLOM BRIDGE PROJECT — Timeline{% endblock %}
 
 {% block extra_head %}
-  <!-- Load one Plotly bundle here (avoid loading in base) -->
-  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.1"></script>
   <style>
-    .construction-tracker-page .header {
-      margin: 1rem 0 1.5rem;
-      padding: 1rem;
-      background: #111827;
-      color: #f9fafb;
-      border: 1px solid #1f2937;
-      border-radius: .5rem;
-    }
-    .construction-tracker-page .meta {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap: .75rem;
-      margin-top: .5rem;
-      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      font-size: .95rem;
-    }
-    .construction-tracker-page .meta div {
-      background: #0b1220;
-      border: 1px solid #233047;
-      border-radius: .5rem;
-      padding: .75rem;
-    }
-    .construction-tracker-page .box {
-      background: #0f172a;
-      border: 1px solid #233047;
-      border-radius: .75rem;
-      padding: 1rem;
-      color: #e5e7eb;
-    }
-    .construction-tracker-page h2 {
-      margin: .25rem 0 1rem;
-      color: #00a886;
-      letter-spacing: .2px;
-    }
-    .construction-tracker-page table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .95rem;
-    }
-    .construction-tracker-page th, .construction-tracker-page td {
-      border: 1px solid #233047;
-      padding: .55rem .6rem;
-      vertical-align: top;
-    }
-    .construction-tracker-page th {
-      background: #162033;
-      color: #e5e7eb;
-      text-align: left;
-    }
-    .badge {
-      display: inline-block; padding: .2rem .5rem; border-radius: .375rem; font-size: .8rem; border:1px solid #2b3b57;
-      background:#0b1220; color:#cbd5e1;
-    }
-    @media (max-width: 900px) {
-      .construction-tracker-page .meta { grid-template-columns: 1fr 1fr; }
+    .construction-tracker-page .header{margin:1rem 0 1.25rem;padding:1rem;background:#111827;color:#f9fafb;border:1px solid #1f2937;border-radius:.65rem}
+    .construction-tracker-page .meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem;margin-top:.5rem;font-size:1rem}
+    .construction-tracker-page .meta>div{background:#0b1220;border:1px solid #233047;border-radius:.5rem;padding:.75rem}
+    .construction-tracker-page .box{background:#0f172a;border:1px solid #233047;border-radius:.75rem;padding:1rem;color:#e5e7eb}
+    .construction-tracker-page h2{margin:.25rem 0 1rem;color:#00a886}
+    html,body{max-width:100%;overflow-x:hidden}
+
+    .timeline-toolbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:.75rem}
+    .timeline-toolbar .ctl{background:#0b1220;color:#e5e7eb;border:1px solid #233047;border-radius:.65rem;padding:.65rem .9rem;font-size:1rem;cursor:pointer;transition:transform .06s ease,filter .15s ease}
+    .timeline-toolbar .ctl:hover{transform:translateY(-1px);filter:brightness(1.1)}
+    .timeline-toolbar .spacer{flex:1 1 auto}
+
+    #timeline{width:100%;min-height:420px}
+
+    .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
+    .construction-tracker-page table{width:100%;border-collapse:collapse;font-size:1rem;min-width:720px}
+    .construction-tracker-page th,.construction-tracker-page td{border:1px solid #233047;padding:.7rem .7rem;vertical-align:top}
+    .construction-tracker-page th{background:#162033;color:#e5e7eb;text-align:left}
+    .details{margin-top:.75rem;padding:.8rem 1rem;border:1px solid #233047;border-radius:.65rem;background:#0b1220;color:#e5e7eb}
+
+    @media (max-width:960px){.construction-tracker-page .meta{grid-template-columns:1fr 1fr}}
+    @media (max-width:720px){
+      .construction-tracker-page .meta{grid-template-columns:1fr}
+      .timeline-toolbar .ctl{padding:.7rem 1rem;font-size:1.05rem}
+      #timeline{min-height:360px}
     }
   </style>
 {% endblock %}
 
 {% block content %}
-<section class="construction-tracker-page" data-aos="fade-in" data-aos-duration="800">
+<section class="construction-tracker-page">
   <div class="header">
-    <h1 id="proj-title" style="font-size:1.6rem; font-weight:700; margin:0;">TSOLOM BRIDGE PROJECT</h1>
-    <div class="meta">
-      <div><strong>Project Manager</strong><br><span id="proj-manager">BRIDGEWORKS COLLECTIVE</span></div>
-      <div><strong>Start Date</strong><br><span id="proj-start"></span></div>
-      <div><strong>End Date</strong><br><span id="proj-end"></span></div>
-      <div><strong>Status</strong><br><span class="badge">Planned</span></div>
+    <h1 id="proj-title" style="font-size:clamp(1.35rem,2.6vw,1.8rem);font-weight:800;margin:0;">TSOLOM BRIDGE PROJECT</h1>
+    <div class="meta" role="list" aria-label="Project metadata">
+      <div role="listitem"><strong>Project Manager</strong><br><span id="proj-manager">BRIDGEWORKS COLLECTIVE</span></div>
+      <div role="listitem"><strong>Start Date</strong><br><span id="proj-start"></span></div>
+      <div role="listitem"><strong>End Date</strong><br><span id="proj-end"></span></div>
+      <div role="listitem"><strong>Status</strong><br><span class="badge">Planned</span></div>
     </div>
   </div>
 
-  <!-- Gantt -->
-  <div class="box" style="margin-bottom: 1rem;">
-    <h2>Project Gantt</h2>
-    <div id="gantt" style="min-height: 520px;"></div>
+  <div class="box" style="margin-bottom:1rem;">
+    <h2>Project Timeline</h2>
+    <div class="timeline-toolbar">
+      <button id="btn-fit"   class="ctl">📐 Fit</button>
+      <button id="btn-today" class="ctl">📅 Today</button>
+      <span class="spacer"></span>
+    </div>
+    <div id="timeline" aria-label="Interactive project timeline"></div>
+    <div id="details" class="details" aria-live="polite">Tap or click a bar to see details here.</div>
   </div>
 
-  <!-- Task table -->
   <div class="box">
-    <h2>Schedule Details & Budgets</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Phase</th>
-          <th>Task</th>
-          <th>Start</th>
-          <th>Finish</th>
-          <th>Duration (days)</th>
-          <th>Budget (CAD)</th>
-          <th>Resources</th>
-          <th>Schedule</th>
-        </tr>
-      </thead>
-      <tbody id="task-table-body"></tbody>
-    </table>
+    <h2>Schedule Details</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Phase</th><th>Task</th><th>Start</th><th>Finish</th><th>Duration (days)</th><th>Resources</th><th>Schedule</th>
+          </tr>
+        </thead>
+        <tbody id="task-table-body"></tbody>
+      </table>
+    </div>
   </div>
 </section>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-(async function () {
-  // -------- load schedule.json ----------
-  const sched = await (await fetch('/api/schedule.json')).json();
+(async function(){
+  // 1) Load schedule with fallbacks
+  async function loadSchedule(){
+    const urls=['/api/schedule.json','/schedule.json','{{ url_for("static", filename="schedule.json") }}'];
+    for (const u of urls){ try{const r=await fetch(u,{cache:'no-store'}); if(r.ok) return r.json();}catch(e){} }
+    return {};
+  }
+  const sched = await loadSchedule();
+
+  // 2) Header
   document.getElementById('proj-title').textContent = sched.project || 'Project';
   document.getElementById('proj-manager').textContent = sched.manager || '';
   document.getElementById('proj-start').textContent  = sched.start  || '';
   document.getElementById('proj-end').textContent    = sched.finish || '';
 
-  const tasks = (sched.tasks || []).map(t => ({
-    phase: t.phase || "",
-    task:  t.task || t.activityName || "",
-    start: t.start,
-    finish:t.finish,
-    duration: t.duration,
-    budget: t.budget,
-    schedule: t.schedule,
-    resources: t.resources
-  }));
+  // 3) Normalize tasks
+  const toISO = v => v ? new Date(v).toISOString().slice(0,10) : null;
+  const addDays=(iso,d)=>{const x=new Date(iso);x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
 
-  // -------- build table ----------
-  const tbody = document.getElementById('task-table-body');
-  tbody.innerHTML = '';
-  tasks.forEach(t => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${t.phase ?? ''}</td>
-      <td>${t.task ?? ''}</td>
-      <td>${t.start ?? ''}</td>
-      <td>${t.finish ?? ''}</td>
-      <td>${t.duration ?? ''}</td>
-      <td>${t.budget != null ? '$' + Number(t.budget).toLocaleString() : ''}</td>
-      <td>${t.resources ?? ''}</td>
-      <td>${t.schedule ?? ''}</td>
-    `;
+  let tasks = (sched.tasks || []).map(t=>{
+    const s=toISO(t.start||t.Start), d=t.duration??t.Duration;
+    let e=toISO(t.finish||t.End);
+    if(!e&&s&&(d||d===0)) e=addDays(s, Math.max(1,+d)-1);
+    const dur=(s&&e)? Math.round((new Date(e)-new Date(s))/86400000)+1 : (isFinite(+d)?+d:null);
+    return {
+      phase: t.phase||t.Phase||'Ungrouped',
+      task:  t.task||t.activityName||t.Task||'',
+      start:s, finish:e, duration:dur,
+      schedule:t.schedule||'', resources:t.resources||''
+    };
+  }).filter(t=>t.task&&t.start&&t.finish);
+
+  // Fallback demo if no data
+  if(!tasks.length){
+    const today=new Date(), iso=d=>d.toISOString().slice(0,10);
+    tasks=[
+      {phase:'Conceptual Design', task:'Kickoff',            start:iso(today),                          finish:iso(new Date(today.getTime()+2*86400000)), duration:3, resources:'PM',    schedule:'Planned'},
+      {phase:'Preliminary Design',task:'Option Development', start:iso(new Date(today.getTime()+3*86400000)), finish:iso(new Date(today.getTime()+9*86400000)), duration:7, resources:'Team',  schedule:'Planned'},
+      {phase:'Detailed Design',   task:'Member Design',      start:iso(new Date(today.getTime()+10*86400000)),finish:iso(new Date(today.getTime()+18*86400000)),duration:9, resources:'Struct',schedule:'Planned'}
+    ];
+    document.getElementById('details').innerHTML = '<em>No schedule.json found — showing sample timeline.</em>';
+  }
+
+  // 4) Fill details table
+  const tbody=document.getElementById('task-table-body');
+  tasks.forEach(t=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${t.phase}</td><td>${t.task}</td><td>${t.start}</td><td>${t.finish}</td><td>${t.duration??''}</td><td>${t.resources}</td><td>${t.schedule}</td>`;
     tbody.appendChild(tr);
   });
 
-  // -------- Gantt (bars only — no CP, no legend) ----------
-  const MS_PER_DAY = 24*3600*1000;
-  const phaseColors = {
-    "Conceptual Design":"#00a886",
-    "Preliminary Design":"#22c55e",
-    "Detailed Design":"#14b8a6"
-  };
-  const phases = [...new Set(tasks.map(t => t.phase))];
+  // 5) Build a single-series rangeBar (most robust)
+  const phaseColor = {'Conceptual Design':'#00a886','Preliminary Design':'#22c55e','Detailed Design':'#14b8a6','Ungrouped':'#3b82f6'};
+  const points = tasks.map(t=>({
+    x: t.task,
+    y: [ new Date(t.start).getTime(), new Date(t.finish).getTime() ],
+    fillColor: phaseColor[t.phase] || '#3b82f6',
+    meta: t
+  }));
 
-  function widthMs(s,f){
-    if (!s || !f) return MS_PER_DAY;
-    // inclusive by day
-    return (new Date(f).getTime() - new Date(s).getTime()) + MS_PER_DAY;
-  }
+  const allStarts=points.map(p=>p.y[0]), allEnds=points.map(p=>p.y[1]);
+  const minX=Math.min(...allStarts), maxX=Math.max(...allEnds), PAD=2*24*3600*1000;
 
-  const barTraces = phases.map(ph => {
-    const rows = tasks.filter(t => t.phase === ph);
-    if (!rows.length) return null;
-    return {
-      type: 'bar',
-      orientation: 'h',
-      name: ph,
-      y: rows.map(r => r.task),
-      x: rows.map(r => widthMs(r.start, r.finish)),  // width in ms
-      base: rows.map(r => r.start),                  // start date
-      customdata: rows.map(r => r.finish),           // finish date for hover
-      marker: {
-        color: phaseColors[ph] || '#3b82f6',
-        line: { color: '#0a0f1a', width: 1 }
+  const isMobile=window.matchMedia('(max-width:720px)').matches;
+  const rowH=isMobile?28:34, chartHeight=Math.max(isMobile?360:520, points.length*rowH+120);
+
+  const options={
+    chart:{
+      type:'rangeBar',
+      height:chartHeight,
+      background:'#0f172a',
+      foreColor:'#cbd5e1',
+      toolbar:{show:true,tools:{download:true,selection:true,zoom:true,zoomin:true,zoomout:true,pan:true,reset:true},autoSelected:'pan'},
+      animations:{enabled:true,easing:'easeinout',speed:400},
+      events:{
+        dataPointSelection:function(event,ctx,config){
+          const dp = ctx.w.config.series[0].data[config.dataPointIndex];
+          const d  = dp.meta || {};
+          document.getElementById('details').innerHTML = `
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;">
+              <div><strong>Task</strong><br>${d.task||'—'}</div>
+              <div><strong>Phase</strong><br>${d.phase||'—'}</div>
+              <div><strong>Start</strong><br>${d.start||'—'}</div>
+              <div><strong>Finish</strong><br>${d.finish||'—'}</div>
+              <div><strong>Duration</strong><br>${d.duration??'—'} days</div>
+              <div><strong>Resources</strong><br>${d.resources||'—'}</div>
+              <div style="grid-column:1/-1;"><strong>Schedule</strong><br>${d.schedule||'—'}</div>
+            </div>`;
+        }
+      }
+    },
+    series:[{ name:'Timeline', data: points }],
+    legend:{ show:false }, /* <-- hide legend (no stray dot) */
+    plotOptions:{
+      bar:{
+        horizontal:true,
+        barHeight:'55%',
+        rangeBarGroupRows:false,
+        borderRadius:6,
+        colors:{ ranges:[] } // we color per-point via fillColor
+      }
+    },
+    xaxis:{
+      type:'datetime',
+      min:minX-PAD, max:maxX+PAD,
+      labels:{ datetimeUTC:false, style:{colors:'#cbd5e1'} },
+      axisTicks:{ color:'#1f2937' }, axisBorder:{ color:'#1f2937' }
+    },
+    yaxis:{ labels:{ style:{ colors:'#cbd5e1', fontSize:isMobile?'11px':'12px' } } },
+    grid:{ borderColor:'#1f2937' },
+    dataLabels:{
+      enabled:true,
+      useHTML:true,
+      formatter:(val,{dataPointIndex,w})=>{
+        const d = w.config.series[0].data[dataPointIndex].meta || {};
+        if (d.duration == null) return '';         // renders nothing
+        return `<span class="dl-pill">${d.duration}d</span>`;
       },
-      hovertemplate:
-        `<b>%{y}</b><br>${ph || 'Phase'}<br>`+
-        `Start: %{base|%Y-%m-%d}<br>`+
-        `Finish: %{customdata|%Y-%m-%d}<extra></extra>`,
-      showlegend: false,
-      offsetgroup: ph || 'phase'
-    };
-  }).filter(Boolean);
-
-  const isMobile = window.matchMedia("(max-width: 720px)").matches;
-
-  const layout = {
-    title: { text: (sched.project || 'Schedule'), x: 0.5, font: { size: isMobile ? 16 : 20, color: '#cbd5e1' } },
-    xaxis: {
-      type: 'date',
-      gridcolor: '#1f2937',
-      tickfont: { color: '#cbd5e1', size: isMobile ? 10 : 12 },
-      title: { text: 'Date', font: { color: '#cbd5e1', size: isMobile ? 11 : 14 } }
+      style:{ colors:['#0a0f1a'], fontWeight:700 },
+      background:{ enabled:false }                 // we style the pill via HTML/CSS
     },
-    yaxis: {
-      automargin: true,
-      tickfont: { color: '#cbd5e1', size: isMobile ? 10 : 12 },
-      title: { text: 'Tasks', font: { color: '#cbd5e1', size: isMobile ? 11 : 14 } },
-      categoryorder: 'array',
-      categoryarray: tasks.map(t => t.task)
+    tooltip:{
+      x:{ format:'yyyy-MM-dd' },
+      y:{ formatter:(val,opts)=>{ const [s,e]=opts.w.config.series[0].data[opts.dataPointIndex].y;
+        const d=opts.w.config.series[0].data[opts.dataPointIndex].meta||{};
+        const fmt=x=>new Date(x).toISOString().slice(0,10);
+        return `${fmt(s)} → ${fmt(e)} (${d.duration??'—'}d)`; } }
     },
-    paper_bgcolor: '#0f172a',
-    plot_bgcolor: '#0f172a',
-    margin: { l: isMobile ? 140 : 240, r: 30, t: isMobile ? 50 : 60, b: 60 },
-    height: Math.max(isMobile ? 420 : 520, tasks.length * (isMobile ? 26 : 32)),
-    barmode: 'overlay',
-    bargap: 0.2,
-    showlegend: false,        // <-- no legend
-    hovermode: 'closest'
+    fill:{ type:'gradient', gradient:{ shade:'dark', shadeIntensity:.25, inverseColors:false, opacityFrom:.95, opacityTo:.85, stops:[0,100] } },
+    states:{ hover:{ filter:{ type:'lighten', value:.03 } }, active:{ filter:{ type:'none' } } },
+    annotations:{ xaxis:[] }
   };
 
-  Plotly.newPlot('gantt', barTraces, layout, {
-    responsive: true,
-    displaylogo: false,
-    modeBarButtonsToRemove: ['toImage','lasso2d','select2d']
+  const el=document.getElementById('timeline');
+  const chart=new ApexCharts(el, options);
+  await chart.render();
+
+  // 6) Controls
+  document.getElementById('btn-fit').addEventListener('click', ()=>{
+    chart.updateOptions({ xaxis:{ min:minX-PAD, max:maxX+PAD }, annotations:{ xaxis:[] } }, true, true);
   });
+  document.getElementById('btn-today').addEventListener('click', ()=>{
+    const now=Date.now(), span=(maxX-minX)/4;
+    chart.updateOptions({
+      xaxis:{ min: now-span, max: now+span },
+      annotations:{ xaxis:[{ x:now, strokeDashArray:4, borderColor:'#f59e0b', label:{ text:'Today', style:{ background:'#f59e0b', color:'#0a0f1a' } } }] }
+    }, true, true);
+  });
+
+  let scale=1; const setScale=()=>{ el.style.fontSize=scale+'rem'; };
+  document.getElementById('font-plus').addEventListener('click', ()=>{ scale=Math.min(1.6,scale+.1); setScale(); });
+  document.getElementById('font-minus').addEventListener('click',()=>{ scale=Math.max(.9,scale-.1); setScale(); });
+
+  window.addEventListener('resize', ()=>chart.resize(), { passive:true });
 })();
 </script>
 {% endblock %}
