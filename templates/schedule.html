@@ -1,35 +1,269 @@
-<!-- templates/construction_tracker.html -->
 {% extends "base.html" %}
 {% block title %}TSOLOM BRIDGE PROJECT — Timeline{% endblock %}
 
 {% block extra_head %}
   <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.1"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
-    .construction-tracker-page .header{margin:1rem 0 1.25rem;padding:1rem;background:#111827;color:#f9fafb;border:1px solid #1f2937;border-radius:.65rem}
-    .construction-tracker-page .meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.75rem;margin-top:.5rem;font-size:1rem}
-    .construction-tracker-page .meta>div{background:#0b1220;border:1px solid #233047;border-radius:.5rem;padding:.75rem}
-    .construction-tracker-page .box{background:#0f172a;border:1px solid #233047;border-radius:.75rem;padding:1rem;color:#e5e7eb}
-    .construction-tracker-page h2{margin:.25rem 0 1rem;color:#00a886}
-    html,body{max-width:100%;overflow-x:hidden}
+    :root {
+      --primary: #00d4b4;
+      --secondary: #3b82f6;
+      --accent: #f59e0b;
+      --bg-dark: #0a0e1c;
+      --bg-card: #111827;
+      --border: #2a3447;
+      --text: #e5e7eb;
+      --text-muted: #94a3b8;
+    }
 
-    .timeline-toolbar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin-bottom:.75rem}
-    .timeline-toolbar .ctl{background:#0b1220;color:#e5e7eb;border:1px solid #233047;border-radius:.65rem;padding:.65rem .9rem;font-size:1rem;cursor:pointer;transition:transform .06s ease,filter .15s ease}
-    .timeline-toolbar .ctl:hover{transform:translateY(-1px);filter:brightness(1.1)}
-    .timeline-toolbar .spacer{flex:1 1 auto}
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
+      touch-action: manipulation; /* Improve touch responsiveness */
+    }
 
-    #timeline{width:100%;min-height:420px}
+    .construction-tracker-page {
+      max-width: 1400px;
+      margin: 1rem auto;
+      padding: 0 0.5rem;
+    }
 
-    .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
-    .construction-tracker-page table{width:100%;border-collapse:collapse;font-size:1rem;min-width:720px}
-    .construction-tracker-page th,.construction-tracker-page td{border:1px solid #233047;padding:.7rem .7rem;vertical-align:top}
-    .construction-tracker-page th{background:#162033;color:#e5e7eb;text-align:left}
-    .details{margin-top:.75rem;padding:.8rem 1rem;border:1px solid #233047;border-radius:.65rem;background:#0b1220;color:#e5e7eb}
+    .header {
+      margin: 1rem 0;
+      padding: 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(8px);
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+    }
 
-    @media (max-width:960px){.construction-tracker-page .meta{grid-template-columns:1fr 1fr}}
-    @media (max-width:720px){
-      .construction-tracker-page .meta{grid-template-columns:1fr}
-      .timeline-toolbar .ctl{padding:.7rem 1rem;font-size:1.05rem}
-      #timeline{min-height:360px}
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.5rem, 2.5vw, 1.8rem);
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: 0.5px;
+      color: var(--primary);
+      text-shadow: 0 0 8px rgba(0, 212, 180, 0.3);
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .meta > div {
+      background: rgba(17, 24, 39, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .meta > div:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 3px 12px rgba(0, 212, 180, 0.2);
+    }
+
+    .meta strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      color: var(--text);
+      margin-bottom: 1rem;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+    }
+
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.25rem;
+      margin: 0.25rem 0 1rem;
+      color: var(--primary);
+      text-shadow: 0 0 6px rgba(0, 212, 180, 0.2);
+    }
+
+    .timeline-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      justify-content: center;
+    }
+
+    .timeline-toolbar .ctl {
+      background: var(--bg-dark);
+      color: var(--text);
+      border: 1px solid var(--primary);
+      border-radius: 0.5rem;
+      padding: 0.6rem 1rem;
+      font-size: 0.95rem;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      touch-action: manipulation;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .timeline-toolbar .ctl::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 180, 0.2), transparent);
+      transition: 0.4s;
+    }
+
+    .timeline-toolbar .ctl:hover::before,
+    .timeline-toolbar .ctl:active::before {
+      left: 100%;
+    }
+
+    .timeline-toolbar .ctl:hover,
+    .timeline-toolbar .ctl:active {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 12px rgba(0, 212, 180, 0.3);
+      background: var(--primary);
+      color: var(--bg-dark);
+    }
+
+    #timeline {
+      width: 100%;
+      min-height: 360px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pinch-zoom;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 0.5rem;
+      background: var(--bg-card);
+      padding: 0.25rem;
+    }
+
+    .construction-tracker-page table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      min-width: 600px;
+    }
+
+    .construction-tracker-page th,
+    .construction-tracker-page td {
+      border: 1px solid var(--border);
+      padding: 0.7rem;
+      vertical-align: top;
+      color: var(--text);
+    }
+
+    .construction-tracker-page th {
+      background: linear-gradient(180deg, var(--bg-dark) 0%, #162033 100%);
+      color: var(--primary);
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .construction-tracker-page td {
+      background: rgba(17, 24, 39, 0.7);
+      transition: background 0.3s ease;
+    }
+
+    .construction-tracker-page tr:hover td {
+      background: rgba(17, 24, 39, 0.9);
+    }
+
+    .details {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      background: rgba(17, 24, 39, 0.7);
+      color: var(--text);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+      font-size: 0.9rem;
+    }
+
+    /* Stack project info + controls vertically on mobile */
+    @media (max-width: 900px){
+      /* header facts */
+      .meta{
+        grid-template-columns: 1fr !important; /* 1 column instead of 2/4 */
+      }
+
+      /* timeline controls */
+      .timeline-toolbar{
+        flex-direction: column;
+        align-items: stretch;     /* make buttons full-width */
+        gap: .5rem;
+      }
+      .timeline-toolbar .ctl{
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .meta {
+        grid-template-columns: 1fr;
+      }
+      .timeline-toolbar .ctl {
+        padding: 0.6rem 0.9rem;
+        font-size: 0.9rem;
+        min-width: 70px;
+      }
+      #timeline {
+        min-height: 320px;
+      }
+      .construction-tracker-page table {
+        font-size: 0.85rem;
+        min-width: 100%;
+      }
+      .construction-tracker-page th,
+      .construction-tracker-page td {
+        padding: 0.5rem;
+      }
+      .details {
+        font-size: 0.85rem;
+      }
+      h2 {
+        font-size: 1.1rem;
+      }
     }
   </style>
 {% endblock %}
@@ -37,33 +271,47 @@
 {% block content %}
 <section class="construction-tracker-page">
   <div class="header">
-    <h1 id="proj-title" style="font-size:clamp(1.35rem,2.6vw,1.8rem);font-weight:800;margin:0;">TSOLOM BRIDGE PROJECT</h1>
-    <div class="meta" role="list" aria-label="Project metadata">
-      <div role="listitem"><strong>Project Manager</strong><br><span id="proj-manager">BRIDGEWORKS COLLECTIVE</span></div>
-      <div role="listitem"><strong>Start Date</strong><br><span id="proj-start"></span></div>
-      <div role="listitem"><strong>End Date</strong><br><span id="proj-end"></span></div>
-      <div role="listitem"><strong>Status</strong><br><span class="badge">Planned</span></div>
+    <h1 id="proj-title">Tsolum River Bridge — Project Schedule</h1>
+    <div class="meta" role="list" aria-label="Project facts">
+      <div role="listitem"><strong>Project Manager</strong><br><span id="proj-manager">Bridgeworks Collective</span></div>
+      <div role="listitem"><strong>Start</strong><br><span id="proj-start"></span></div>
+      <div role="listitem"><strong>Target Finish</strong><br><span id="proj-end"></span></div>
+      <div role="listitem"><strong>Status</strong><br>
+        <span class="badge" style="background: var(--accent); padding: 0.25rem 0.6rem; border-radius: 0.4rem;">Planned</span>
+      </div>
     </div>
   </div>
 
-  <div class="box" style="margin-bottom:1rem;">
+  <div class="box" style="margin-bottom: 1rem;">
     <h2>Project Timeline</h2>
-    <div class="timeline-toolbar">
-      <button id="btn-fit"   class="ctl">📐 Fit</button>
-      <button id="btn-today" class="ctl">📅 Today</button>
-      <span class="spacer"></span>
+    <p class="muted" style="margin-top:-.25rem">
+      Tip: on mobile, <strong>rotate to landscape</strong> and use the buttons to
+      <em>fit</em> the whole schedule or jump to <em>today</em>.<br>Use desktop to <em>scroll sideways</em> and to use more features.<br><br> Tap Gantt Bars to see their details below.
+    </p>
+    <div class="timeline-toolbar" aria-label="Timeline controls">
+      <button id="btn-fit" class="ctl" aria-label="Fit entire schedule">📐 Fit</button>
+      <button id="btn-today" class="ctl" aria-label="Go to today">📅 Today</button>
     </div>
     <div id="timeline" aria-label="Interactive project timeline"></div>
-    <div id="details" class="details" aria-live="polite">Tap or click a bar to see details here.</div>
+    <div id="details" class="details" aria-live="polite">Tap a bar to see task details here.</div>
   </div>
 
   <div class="box">
     <h2>Schedule Details</h2>
+    <p class="muted" style="margin-top:-.25rem">
+      Full task list with dates, durations, and notes.
+    </p>
     <div class="table-wrap">
-      <table>
+      <table aria-label="Task schedule table">
         <thead>
           <tr>
-            <th>Phase</th><th>Task</th><th>Start</th><th>Finish</th><th>Duration (days)</th><th>Resources</th><th>Schedule</th>
+            <th>Phase</th>
+            <th>Task</th>
+            <th>Start</th>
+            <th>Finish</th>
+            <th>Duration (days)</th>
+            <th>Resources</th>
+            <th>Schedule</th>
           </tr>
         </thead>
         <tbody id="task-table-body"></tbody>
@@ -126,8 +374,13 @@
     tbody.appendChild(tr);
   });
 
-  // 5) Build a single-series rangeBar (most robust)
-  const phaseColor = {'Conceptual Design':'#00a886','Preliminary Design':'#22c55e','Detailed Design':'#14b8a6','Ungrouped':'#3b82f6'};
+  // 5) Build a single-series rangeBar
+  const phaseColor = {
+    'Conceptual Design': '#00d4b4',
+    'Preliminary Design': '#22c55e',
+    'Detailed Design': '#14b8a6',
+    'Ungrouped': '#3b82f6'
+  };
   const points = tasks.map(t=>({
     x: t.task,
     y: [ new Date(t.start).getTime(), new Date(t.finish).getTime() ],
@@ -138,73 +391,130 @@
   const allStarts=points.map(p=>p.y[0]), allEnds=points.map(p=>p.y[1]);
   const minX=Math.min(...allStarts), maxX=Math.max(...allEnds), PAD=2*24*3600*1000;
 
-  const isMobile=window.matchMedia('(max-width:720px)').matches;
-  const rowH=isMobile?28:34, chartHeight=Math.max(isMobile?360:520, points.length*rowH+120);
+  // --- REPLACE this whole block (isMobile/rowH/chartHeight + add dynamic yAxisWidth) ---
+  const isMobile = window.matchMedia('(max-width:720px)').matches;
+  const rowH = isMobile ? 36 : 40;
+  const chartHeight = Math.max(isMobile ? 320 : 480, points.length * rowH + 100);
+
+  // Measure longest label to size Y-axis appropriately
+  function computeYAxisWidthPx(labels, fontPx, minPx, capPx){
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    // Match Apex label font
+    ctx.font = `${fontPx}px Roboto, sans-serif`;
+    let max = 0;
+    for (const s of labels) {
+      const { width } = ctx.measureText(String(s ?? ''));
+      if (width > max) max = width;
+    }
+    // Add small padding to avoid tight clipping
+    const padded = Math.ceil(max + 16);
+    return Math.min(Math.max(padded, minPx), capPx);
+  }
+
+  const yAxisWidth = computeYAxisWidthPx(
+    tasks.map(t => t.task),
+    isMobile ? 11 : 12,          // match label font-size below
+    isMobile ? 120 : 160,        // sensible minimums
+    400                          // allow long labels without truncation
+  );
+
 
   const options={
     chart:{
       type:'rangeBar',
       height:chartHeight,
-      background:'#0f172a',
-      foreColor:'#cbd5e1',
-      toolbar:{show:true,tools:{download:true,selection:true,zoom:true,zoomin:true,zoomout:true,pan:true,reset:true},autoSelected:'pan'},
-      animations:{enabled:true,easing:'easeinout',speed:400},
+      background:'transparent',
+      foreColor: '#e5e7eb',
+      toolbar:{
+        show: true,
+        tools:{download:false,selection:true,zoom:true,zoomin:true,zoomout:true,pan:true,reset:true},
+        autoSelected:'pan'
+      },
+      animations:{
+        enabled: true,
+        easing:'easeinout',
+        speed: 500,
+        animateGradually:{enabled: true, delay: 100},
+        dynamicAnimation:{enabled: true, speed: 300}
+      },
       events:{
         dataPointSelection:function(event,ctx,config){
           const dp = ctx.w.config.series[0].data[config.dataPointIndex];
           const d  = dp.meta || {};
           document.getElementById('details').innerHTML = `
-            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;">
-              <div><strong>Task</strong><br>${d.task||'—'}</div>
-              <div><strong>Phase</strong><br>${d.phase||'—'}</div>
-              <div><strong>Start</strong><br>${d.start||'—'}</div>
-              <div><strong>Finish</strong><br>${d.finish||'—'}</div>
-              <div><strong>Duration</strong><br>${d.duration??'—'} days</div>
-              <div><strong>Resources</strong><br>${d.resources||'—'}</div>
-              <div style="grid-column:1/-1;"><strong>Schedule</strong><br>${d.schedule||'—'}</div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;font-size:0.9rem;">
+              <div><strong style="color:var(--primary)">Task</strong><br>${d.task||'—'}</div>
+              <div><strong style="color:var(--primary)">Phase</strong><br>${d.phase||'—'}</div>
+              <div><strong style="color:var(--primary)">Start</strong><br>${d.start||'—'}</div>
+              <div><strong style="color:var(--primary)">Finish</strong><br>${d.finish||'—'}</div>
+              <div><strong style="color:var(--primary)">Duration</strong><br>${d.duration??'—'} days</div>
+              <div><strong style="color:var(--primary)">Resources</strong><br>${d.resources||'—'}</div>
+              <div style="grid-column:1/-1;"><strong style="color:var(--primary)">Schedule</strong><br>${d.schedule||'—'}</div>
             </div>`;
         }
-      }
+      },
+      zoom:{enabled: true, type:'x', autoScaleYaxis: false}
     },
     series:[{ name:'Timeline', data: points }],
-    legend:{ show:false }, /* <-- hide legend (no stray dot) */
+    legend:{ show: false },
     plotOptions:{
       bar:{
-        horizontal:true,
-        barHeight:'55%',
-        rangeBarGroupRows:false,
-        borderRadius:6,
-        colors:{ ranges:[] } // we color per-point via fillColor
+        horizontal: true,
+        barHeight: isMobile ? '70%' : '60%',
+        rangeBarGroupRows: false,
+        borderRadius: 6,
+        colors:{ ranges: [] }
       }
     },
     xaxis:{
       type:'datetime',
       min:minX-PAD, max:maxX+PAD,
-      labels:{ datetimeUTC:false, style:{colors:'#cbd5e1'} },
-      axisTicks:{ color:'#1f2937' }, axisBorder:{ color:'#1f2937' }
+      labels:{ datetimeUTC:false, style:{colors:'#e5e7eb', fontFamily:'Roboto', fontSize:isMobile?'11px':'12px'} },
+      axisTicks:{ color: '#2a3447' },
+      axisBorder:{ color: '#2a3447' }
     },
-    yaxis:{ labels:{ style:{ colors:'#cbd5e1', fontSize:isMobile?'11px':'12px' } } },
-    grid:{ borderColor:'#1f2937' },
+    yaxis: {
+      labels: {
+        // Use the dynamic width we computed
+        maxWidth: yAxisWidth,
+        // No truncation: show full text
+        formatter: function (val) { return val; },
+        style: {
+          colors: '#e5e7eb',
+          fontSize: isMobile ? '11px' : '12px',
+          fontFamily: 'Roboto, sans-serif'
+        }
+      }
+    },
+    grid:{ borderColor: '#2a3447', strokeDashArray: 4 },
     dataLabels:{
-      enabled:true,
-      useHTML:true,
+      enabled: true,
       formatter:(val,{dataPointIndex,w})=>{
-        const d = w.config.series[0].data[dataPointIndex].meta || {};
-        if (d.duration == null) return '';         // renders nothing
-        return `<span class="dl-pill">${d.duration}d</span>`;
+        const meta=w.config.series[0].data[dataPointIndex].meta;
+        return meta && meta.duration ? meta.duration+'d' : '';
       },
-      style:{ colors:['#0a0f1a'], fontWeight:700 },
-      background:{ enabled:false }                 // we style the pill via HTML/CSS
+      style:{ colors:['#0a0e1c'], fontWeight: 700, fontFamily:'Roboto', fontSize:isMobile?'10px':'11px' },
+      background:{ enabled: true, borderRadius: 4, opacity: 0.9, foreColor: '#e5e7eb' }
     },
     tooltip:{
+      theme: 'dark',
       x:{ format:'yyyy-MM-dd' },
-      y:{ formatter:(val,opts)=>{ const [s,e]=opts.w.config.series[0].data[opts.dataPointIndex].y;
+      y:{ formatter:(val,opts)=>{ 
+        const [s,e]=opts.w.config.series[0].data[opts.dataPointIndex].y;
         const d=opts.w.config.series[0].data[opts.dataPointIndex].meta||{};
         const fmt=x=>new Date(x).toISOString().slice(0,10);
-        return `${fmt(s)} → ${fmt(e)} (${d.duration??'—'}d)`; } }
+        return `${fmt(s)} → ${fmt(e)} (${d.duration??'—'}d)`; 
+      } }
     },
-    fill:{ type:'gradient', gradient:{ shade:'dark', shadeIntensity:.25, inverseColors:false, opacityFrom:.95, opacityTo:.85, stops:[0,100] } },
-    states:{ hover:{ filter:{ type:'lighten', value:.03 } }, active:{ filter:{ type:'none' } } },
+    fill:{ 
+      type:'gradient', 
+      gradient:{ shade:'dark', shadeIntensity:0.3, inverseColors:false, opacityFrom:0.95, opacityTo:0.85, stops:[0,100], gradientToColors:[ '#22c55e' ] } 
+    },
+    states:{ 
+      hover:{ filter:{ type:'lighten', value:0.05 } }, 
+      active:{ filter:{ type:'none' } } 
+    },
     annotations:{ xaxis:[] }
   };
 
@@ -213,22 +523,20 @@
   await chart.render();
 
   // 6) Controls
-  document.getElementById('btn-fit').addEventListener('click', ()=>{
+  document.getElementById('btn-fit').addEventListener('click', (e)=>{
+    e.preventDefault();
     chart.updateOptions({ xaxis:{ min:minX-PAD, max:maxX+PAD }, annotations:{ xaxis:[] } }, true, true);
-  });
-  document.getElementById('btn-today').addEventListener('click', ()=>{
+  }, { passive: false });
+  document.getElementById('btn-today').addEventListener('click', (e)=>{
+    e.preventDefault();
     const now=Date.now(), span=(maxX-minX)/4;
     chart.updateOptions({
       xaxis:{ min: now-span, max: now+span },
-      annotations:{ xaxis:[{ x:now, strokeDashArray:4, borderColor:'#f59e0b', label:{ text:'Today', style:{ background:'#f59e0b', color:'#0a0f1a' } } }] }
+      annotations:{ xaxis:[{ x:now, strokeDashArray:4, borderColor: '#f59e0b', label:{ text:'Today', style:{ background: '#f59e0b', color: '#0a0e1c', fontFamily:'Roboto' } } }] }
     }, true, true);
-  });
+  }, { passive: false });
 
-  let scale=1; const setScale=()=>{ el.style.fontSize=scale+'rem'; };
-  document.getElementById('font-plus').addEventListener('click', ()=>{ scale=Math.min(1.6,scale+.1); setScale(); });
-  document.getElementById('font-minus').addEventListener('click',()=>{ scale=Math.max(.9,scale-.1); setScale(); });
-
-  window.addEventListener('resize', ()=>chart.resize(), { passive:true });
+  window.addEventListener('resize', ()=>chart.resize(), { passive: true });
 })();
 </script>
 {% endblock %}
