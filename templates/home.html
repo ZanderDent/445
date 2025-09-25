@@ -9,7 +9,7 @@
     border:var(--line);
     border-radius:var(--radius);
     padding:clamp(1.3rem,3vw,2.2rem);
-    margin:1rem 0 1.25rem;
+    margin:1.25rem 0 1.5rem;
     background:
       radial-gradient(1100px 420px at 0% 0%, rgba(0,209,178,.12), transparent 60%),
       radial-gradient(800px 360px at 120% 0%, rgba(59,130,246,.10), transparent 60%),
@@ -18,7 +18,7 @@
     isolation:isolate;
   }
   .hero-badge{
-    position:absolute; top:-5px; right:-5px;
+    position:absolute; top:10px; right:10px;
     background:linear-gradient(135deg, #22c55e, #00d1b2);
     color:#0b0f1a; font-weight:800; letter-spacing:.3px;
     padding:.35rem .6rem; border-radius:999px; font-size:.78rem;
@@ -26,61 +26,197 @@
     box-shadow:0 6px 18px rgba(0,0,0,.25);
   }
   .home-hero h1{
-    margin:0 0 .5rem;
+    margin:0 0 .55rem;
     font-size:clamp(1.7rem, 3.2vw, 2.3rem);
     letter-spacing:.2px;
   }
-  .home-hero p{ margin:.2rem 0 0; color:var(--muted); max-width:68ch; }
-  .hero-actions{ display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.9rem; }
-  .btn.glow{
-    position:relative; overflow:hidden;
-  }
+  .home-hero p{ margin:.25rem 0 0; color:var(--muted); max-width:68ch; }
+  .hero-actions{ display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1rem; }
+  .btn.glow{ position:relative; overflow:hidden; }
   .btn.glow:after{
     content:""; position:absolute; inset:0; pointer-events:none;
     background:linear-gradient(120deg, transparent, rgba(255,255,255,.28), transparent);
-    transform:translateX(-100%);
-    transition:transform .6s ease;
-    mix-blend-mode:overlay;
+    transform:translateX(-100%); transition:transform .6s ease; mix-blend-mode:overlay;
   }
   .btn.glow:hover:after{ transform:translateX(100%); }
-  .hero-bg-shape{
-    position:absolute; inset:-20% -10% auto auto; width:55vw; height:55vw; max-width:780px; max-height:780px;
-    background:radial-gradient(closest-side, rgba(0,209,178,.09), transparent);
-    filter:blur(10px); z-index:-1;
-    animation:floaty 12s ease-in-out infinite;
-  }
 
-  /* ------------ STATS ------------ */
-  .stats{
-    display:grid; gap:.75rem; margin-top:1rem;
-    grid-template-columns:repeat(3, minmax(0,1fr));
-  }
-  .stat{
-    background:#0b1220; border:var(--line); border-radius:12px; padding:.8rem;
-  }
+  .stats{ display:grid; gap:.9rem; margin-top:1.1rem; grid-template-columns:repeat(3, minmax(0,1fr)); }
+  .stat{ background:#0b1220; border:var(--line); border-radius:12px; padding:.9rem; }
   .stat small{ color:var(--muted); display:block; margin-bottom:.15rem; }
   .stat .value{ font-size:1.15rem; font-weight:800; letter-spacing:.25px; }
+
+  /* ------------ TRACKER ------------ */
+  .tracker-section{
+    background:var(--bg-soft); border:var(--line); border-radius:var(--radius);
+    padding:clamp(1rem,2.4vw,1.35rem);
+    margin:1.25rem 0 1.75rem;
+  }
+  .tracker-header{ display:flex; align-items:center; gap:.6rem .75rem; flex-wrap:wrap; }
+  .pill{
+    display:inline-flex; align-items:center; gap:.35rem;
+    background:#0b1220; border:var(--line); border-radius:999px;
+    padding:.32rem .66rem; font-size:.86rem; color:#e5e7eb; box-shadow:0 2px 10px rgba(0,0,0,.2);
+  }
+  .tracker-bar{
+    position:relative; margin:1rem 0 .35rem; height:20px; border-radius:999px;
+    background:linear-gradient(180deg, #0f1a2b, #0b1220); border:var(--line);
+    overflow:visible;
+  }
+  .tracker-fill{
+    position:absolute; inset:0 auto 0 0; width:0%;
+    background:linear-gradient(90deg, #00d1b2, #22c55e);
+    border-radius:999px; box-shadow:0 0 18px rgba(0,209,178,.35);
+    transition:width .6s cubic-bezier(.22,1,.36,1);
+  }
+  .tracker-today{
+    position:absolute; top:50%; transform:translate(-50%, -50%);
+    width:18px; height:18px; border-radius:50%;
+    background:#f59e0b; box-shadow:0 0 0 3px rgba(245,158,11,.25);
+    border:1px solid #8a5d10;
+  }
+
+    .tracker-popband{
+    position: relative;
+    height: 48px;                 /* reserved space for labels */
+    margin: .5rem 0 .15rem;       /* vertical spacing */
+    background: #00000014;
+    border-radius: 300px;
+    display: grid;                /* centers the hint text */
+    place-items: center;
+    padding: 0 .75rem;
+    }
+
+    .tracker-popband p{
+    margin: 0;
+    color: var(--muted);
+    font-size: .92rem;
+    letter-spacing: .2px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;         /* never steals taps/clicks */
+    user-select: none;
+    transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .tracker-popband p::before{
+    content: "☝︎ ";
+    color: var(--accent);
+    font-weight: 700;
+    margin-right: .15rem;
+    }
+
+    /* When a real popup label is present, fade the hint away (modern browsers) */
+    @supports selector(.tracker-popband:has(.poplabel)) {
+    .tracker-popband:has(.poplabel) p{
+        opacity: 0;
+        transform: translateY(-4px);
+        visibility: hidden;
+    }
+    }
+
+    /* Existing popup label styles (unchanged) */
+    .tracker-popband .poplabel{
+    position: absolute; top: 6px; transform: translateX(-50%);
+    white-space: nowrap; background:#0b1220; border:var(--line); color:#e5e7eb;
+    padding:.38rem .62rem; border-radius:10px; font-size:.86rem; line-height:1.2;
+    box-shadow:0 6px 20px rgba(0,0,0,.28); max-width: 80vw; overflow: hidden; text-overflow: ellipsis;
+    pointer-events: none;
+    }
+    .tracker-popband .poplabel::after{
+    content:""; position:absolute; left:50%; transform:translateX(-50%);
+    bottom:-6px; border:6px solid transparent; border-top-color:#0b1220;
+    }
+
+  /* We’ll stop using inline labels on the dots (they caused overlap) */
+  .mark .label{ display:none !important; }
+
+  /* Dots + labels */
+  .mark{
+    position:absolute; top:50%; transform:translate(-50%, -50%);
+    width:14px; height:14px; border-radius:50%;
+    background:#3b82f6; border:1px solid #1c3d8f; box-shadow:0 0 0 3px rgba(59,130,246,.22);
+    cursor:pointer; outline:none; z-index:2;
+  }
+  .mark:focus-visible{ box-shadow:0 0 0 3px rgba(255,255,255,.25), 0 0 0 6px rgba(59,130,246,.25); }
+  .mark .label{
+    position:absolute; left:50%; transform:translateX(-50%);
+    white-space:nowrap; background:#0b1220; border:var(--line); color:#e5e7eb;
+    padding:.36rem .6rem; border-radius:10px; font-size:.84rem; line-height:1.2;
+    box-shadow:0 6px 20px rgba(0,0,0,.28); max-width:280px; overflow:hidden; text-overflow:ellipsis;
+    opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+  }
+  .mark .label::after{ content:""; position:absolute; left:50%; transform:translateX(-50%); border:6px solid transparent; }
+
+  /* Above/below lanes */
+  .mark.top    .label{ bottom: calc(100% + 10px); }
+  .mark.bottom .label{ top:    calc(100% + 10px); }
+  .mark.top    .label::after{ top:100%;    border-top-color:#0b1220; }
+  .mark.bottom .label::after{ bottom:100%; border-bottom-color:#0b1220; }
+
+  /* 3-tier staggering to reduce overlaps */
+  .mark.top.tier-1    .label{ bottom: calc(100% + 26px); }
+  .mark.top.tier-2    .label{ bottom: calc(100% + 42px); }
+  .mark.bottom.tier-1 .label{ top:    calc(100% + 26px); }
+  .mark.bottom.tier-2 .label{ top:    calc(100% + 42px); }
+
+  /* Show on hover/focus */
+  .mark:hover .label,
+  .mark:focus-visible .label{ opacity:1; pointer-events:auto; }
+
+  /* Tap-to-open (forces below) */
+  .mark.open .label{
+    opacity:1; pointer-events:auto;
+    top:auto; bottom: calc(-100% - 12px); transform:translateX(-50%);
+  }
+  .mark.open .label::after{
+    top:auto; bottom:100%;
+    border-top-color:transparent; border-bottom-color:#0b1220;
+  }
+
+  /* Upcoming milestone animation */
+  .mark.upcoming{
+    background:#22c55e; border-color:#15803d; box-shadow:0 0 0 5px rgba(34,197,94,.28);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 5px rgba(34,197,94,.28); }
+    50%{ box-shadow:0 0 0 10px rgba(34,197,94,.10); }
+    100%{ box-shadow:0 0 0 5px rgba(34,197,94,.28); }
+  }
+
+  .legend{ display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.8rem; }
+  .legend .legend-item{
+    display:flex; align-items:center; gap:.45rem; color:#cbd5e1; font-size:.88rem;
+    background:#0b1220; border:var(--line); border-radius:8px; padding:.35rem .6rem;
+  }
+  .legend-dot{ width:10px; height:10px; border-radius:50%; background:#3b82f6; border:1px solid #1c3d8f; }
+  .legend-today .legend-dot{ background:#f59e0b; border-color:#8a5d10; }
+  .legend-progress .legend-dot{ background:linear-gradient(90deg, #00d1b2, #22c55e); border:none; }
 
   /* ------------ TEAM ------------ */
   .team{
     background:var(--bg-soft);
     border:var(--line);
     border-radius:var(--radius);
-    padding:clamp(.9rem,2.2vw,1.2rem);
+    padding:clamp(1rem,2.4vw,1.35rem);
+    margin:1.75rem 0 1.25rem;
   }
-  .team h2{ margin:0 0 .6rem; }
-  .team-figure{ margin:0 0 .85rem; border-radius:12px; overflow:hidden; border:var(--line); background:#0b1220; }
+  .team h2{ margin:0 0 .75rem; }
+  .team-figure{ margin:0 0 1rem; border-radius:12px; overflow:hidden; border:var(--line); background:#0b1220; }
   .team-figure img{ display:block; width:100%; height:auto; }
-  .team-figure figcaption{ padding:.55rem .75rem; font-size:.9rem; color:var(--muted); border-top:var(--line); }
+  .team-figure figcaption{ padding:.6rem .8rem; font-size:.92rem; color:var(--muted); border-top:var(--line); }
 
   .team-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-    gap:clamp(.75rem,2vw,1rem);
+    gap:clamp(.85rem,2.2vw,1.15rem);
+    margin-top:.25rem;
   }
   .member{
-    display:grid; grid-template-columns:72px 1fr; gap:.85rem; align-items:center;
-    background:#0b1220; border:var(--line); border-radius:12px; padding:.8rem;
+    display:grid; grid-template-columns:72px 1fr; gap:.9rem; align-items:center;
+    background:#0b1220; border:var(--line); border-radius:12px; padding:.9rem;
     transition:transform .12s ease, box-shadow .2s ease, border-color .2s ease;
   }
   .member:hover{ transform:translateY(-2px); box-shadow:var(--shadow); border-color:#2b3b57; }
@@ -93,12 +229,12 @@
     border:var(--line);
     user-select:none;
   }
-  .member h3{ margin:0; font-size:1.05rem; }
-  .member p{ margin:.2rem 0 0; color:var(--muted); font-size:.92rem; }
+  .member h3{ margin:0; font-size:1.06rem; }
+  .member p{ margin:.22rem 0 0; color:var(--muted); font-size:.92rem; }
 
   /* ------------ CTA CARDS ------------ */
   .cta-grid{
-    display:grid; gap:1rem; margin-top:1rem;
+    display:grid; gap:1.1rem; margin-top:1.1rem;
     grid-template-columns:repeat(3, minmax(0,1fr));
   }
   @media (max-width:980px){ .cta-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
@@ -108,31 +244,15 @@
     background:var(--bg-soft); border:var(--line); border-radius:var(--radius);
     padding:1rem;
   }
-  .cta h3{ margin:.1rem 0 .4rem; }
-  .cta p{ margin:.2rem 0 .8rem; color:var(--muted); }
-  .cta .pulse{
-    position:absolute; inset:auto -30% -40% auto; width:60%; aspect-ratio:1/1; border-radius:50%;
-    background:radial-gradient(closest-side, rgba(0,209,178,.12), transparent);
-    filter:blur(8px);
-    animation:breath 9s ease-in-out infinite;
-    pointer-events:none;
-  }
-
-  /* ------------ fun but subtle ------------ */
-  @keyframes floaty{ 0%{transform:translateY(0)} 50%{transform:translateY(-6px)} 100%{transform:translateY(0)} }
-  @keyframes breath{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-  @media (prefers-reduced-motion:reduce){
-    .hero-bg-shape,.cta .pulse{ animation:none }
-  }
+  .cta h3{ margin:.1rem 0 .45rem; }
+  .cta p{ margin:.25rem 0 .85rem; color:var(--muted); }
 </style>
 {% endblock %}
 
 {% block content %}
 <section class="home-hero">
   <span class="hero-badge">Capstone 2025</span>
-  <div class="hero-bg-shape" aria-hidden="true"></div>
-
-  <h1>Tsolum River Bridge Proposal: The Bridgeworks Collective</h1>
+  <h1>Tsolum River Bridge — Capstone Team</h1>
   <p>
     We’re a CIVL 445/446 group advancing concept and detailed design options for a multi-use crossing
     to reconnect the One Spot Trail over the Tsolum River (Comox Valley). Work is supported by ISL.
@@ -147,7 +267,32 @@
   <div class="stats" aria-label="Project quick facts">
     <div class="stat"><small>Start</small><div id="stat-start" class="value">—</div></div>
     <div class="stat"><small>Target Finish</small><div id="stat-end" class="value">—</div></div>
-    <div class="stat"><small>Total Duration</small><div id="stat-days" class="value">—</div></div>
+    <div class="stat"><small>Overall Progress</small><div id="stat-days" class="value">—</div></div>
+  </div>
+</section>
+
+<!-- PROJECT TRACKER -->
+<section class="tracker-section" aria-label="Project tracker">
+  <div class="tracker-header">
+    <h2 style="margin:0">Project Tracker</h2>
+    <span id="tracker-percent" class="pill">0% complete</span>
+    <span id="tracker-range" class="pill">— → —</span>
+  </div>
+
+  <div id="tracker-popband" class="tracker-popband" aria-live="polite" aria-label="Milestone details">
+    <p>Hover over milestones below to see them here!</p>
+  </div>
+  <div id="tracker" class="tracker-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Overall project progress">
+    <div id="tracker-fill" class="tracker-fill"></div>
+    <!-- Today pin -->
+    <div id="tracker-today" class="tracker-today" title="Today"></div>
+    <!-- Milestones injected here -->
+  </div>
+
+  <div class="legend" aria-hidden="true">
+    <span class="legend-item legend-progress"><span class="legend-dot"></span> Progress</span>
+    <span class="legend-item"><span class="legend-dot"></span> Milestone</span>
+    <span class="legend-item legend-today"><span class="legend-dot"></span> Today</span>
   </div>
 </section>
 
@@ -162,47 +307,26 @@
   </figure>
 
   <div class="team-grid" aria-label="Team roster">
-    <article class="member">
-      <div class="avatar" aria-hidden="true">LW</div>
-      <div><h3>Luke Winnig</h3><p>Capstone Team Member</p></div>
-    </article>
-    <article class="member">
-      <div class="avatar" aria-hidden="true">AC</div>
-      <div><h3>Ahnaf Chowdhury</h3><p>Capstone Team Member</p></div>
-    </article>
-    <article class="member">
-      <div class="avatar" aria-hidden="true">DB</div>
-      <div><h3>Diego Boilley</h3><p>Capstone Team Member</p></div>
-    </article>
-    <article class="member">
-      <div class="avatar" aria-hidden="true">FS</div>
-      <div><h3>Felix Stewart</h3><p>Capstone Team Member</p></div>
-    </article>
-    <article class="member">
-      <div class="avatar" aria-hidden="true">ZD</div>
-      <div><h3>Zander Dent</h3><p>Capstone Team Member</p></div>
-    </article>
-    <article class="member">
-      <div class="avatar" aria-hidden="true">GC</div>
-      <div><h3>Gabriel Comla</h3><p>Capstone Team Member</p></div>
-    </article>
+    <article class="member"><div class="avatar" aria-hidden="true">LW</div><div><h3>Luke Winnig</h3><p>Capstone Team Member</p></div></article>
+    <article class="member"><div class="avatar" aria-hidden="true">AC</div><div><h3>Ahnaf Chowdhury</h3><p>Capstone Team Member</p></div></article>
+    <article class="member"><div class="avatar" aria-hidden="true">DB</div><div><h3>Diego Boilley</h3><p>Capstone Team Member</p></div></article>
+    <article class="member"><div class="avatar" aria-hidden="true">FS</div><div><h3>Felix Stewart</h3><p>Capstone Team Member</p></div></article>
+    <article class="member"><div class="avatar" aria-hidden="true">ZD</div><div><h3>Zander Dent</h3><p>Capstone Team Member</p></div></article>
+    <article class="member"><div class="avatar" aria-hidden="true">GC</div><div><h3>Gabriel Comla</h3><p>Capstone Team Member</p></div></article>
   </div>
 
   <div class="cta-grid">
     <div class="cta">
-      <span class="pulse" aria-hidden="true"></span>
       <h3>Interactive Schedule</h3>
       <p>Browse all phases, deliverables, and milestones on the timeline.</p>
       <a class="btn primary glow" href="/">Open Timeline</a>
     </div>
     <div class="cta">
-      <span class="pulse" aria-hidden="true"></span>
       <h3>Have a Say</h3>
       <p>Vote for the bridge concept that best fits the site and community.</p>
       <a class="btn secondary glow" href="/survey">Take the Survey</a>
     </div>
     <div class="cta">
-      <span class="pulse" aria-hidden="true"></span>
       <h3>Budget Overview</h3>
       <p>See the fee breakdown for our selected cable-stayed option.</p>
       <a class="btn glow" style="border-color:#22c55e;color:#22c55e" href="/budget">View Budget</a>
@@ -213,23 +337,146 @@
 
 {% block extra_scripts %}
 <script>
-  // Fill quick stats from schedule.json when available
   (async () => {
-    try{
+    // --- Load schedule.json from common locations
+    async function loadSchedule(){
       const urls=['/api/schedule.json','/schedule.json','{{ url_for("static", filename="schedule.json") }}'];
-      let data=null;
-      for (const u of urls){ const r=await fetch(u,{cache:'no-store'}).catch(()=>null); if(r && r.ok){ data=await r.json(); break; } }
-      if(!data) return;
+      for (const u of urls){ try{ const r=await fetch(u,{cache:'no-store'}); if(r.ok){ return r.json(); } }catch(e){} }
+      return null;
+    }
+    const data = await loadSchedule();
 
-      const start = data.start || '';
-      const finish = data.finish || '';
-      const s=new Date(start), f=new Date(finish);
-      const days = (isFinite(s) && isFinite(f)) ? Math.round((f-s)/86400000)+1 : null;
+    // --- Helpers
+    const clamp = (v,min,max)=>Math.min(max,Math.max(min,v));
+    const fmtISO = d => new Date(d).toISOString().slice(0,10);
 
-      document.getElementById('stat-start').textContent = start || '—';
-      document.getElementById('stat-end').textContent   = finish || '—';
-      document.getElementById('stat-days').textContent  = days ? `${days} days` : '—';
-    }catch(e){ /* silent */ }
+    // --- Fill hero stats
+    const s = data?.start ? new Date(data.start) : null;
+    const f = data?.finish ? new Date(data.finish) : null;
+    const validRange = s && f && !isNaN(s) && !isNaN(f) && f > s;
+
+    document.getElementById('stat-start').textContent = data?.start || '—';
+    document.getElementById('stat-end').textContent   = data?.finish || '—';
+
+    // --- Build tracker if dates valid
+    const bar   = document.getElementById('tracker');
+    const fill  = document.getElementById('tracker-fill');
+    const today = document.getElementById('tracker-today');
+    const pillP = document.getElementById('tracker-percent');
+    const pillR = document.getElementById('tracker-range');
+
+    if (!validRange){
+      pillP.textContent = 'Awaiting schedule';
+      pillR.textContent = '—';
+      bar.setAttribute('aria-valuenow', '0');
+      fill.style.width = '0%';
+      today.style.left = '0%';
+      return;
+    }
+
+    pillR.textContent = `${fmtISO(s)} → ${fmtISO(f)}`;
+
+    const now = new Date();
+    const total = f - s;
+    const elapsed = clamp(now - s, 0, total);
+    const pct = Math.round((elapsed / total) * 100);
+
+    fill.style.width = pct + '%';
+    bar.setAttribute('aria-valuenow', String(pct));
+    pillP.textContent = `${pct}% complete`;
+
+    const todayPct = clamp(((now - s) / total) * 100, 0, 100);
+    today.style.left = todayPct + '%';
+    today.title = `Today • ${fmtISO(now)}`;
+
+    // --- Choose important milestones from tasks
+    const tasks = Array.isArray(data?.tasks) ? data.tasks : [];
+    const KEY = /(report|submission|submit|mae|wdm|estimate|final|presentation|preferred|option|feasibility|member design|detailing|permitting)/i;
+
+    const milestones = tasks
+      .filter(t => t.finish && (KEY.test(t.task||'') || (t.duration!=null && +t.duration <= 5)))
+      .sort((a,b)=> new Date(a.finish) - new Date(b.finish))
+      .slice(0, 12);
+
+    // Render markers (alternate above/below; stagger 3 tiers)
+    let nextTopTier = 0, nextBotTier = 0;
+    milestones.forEach((m,i)=>{
+    const mEnd = new Date(m.finish);
+    const pos = Math.max(0, Math.min(100, ((mEnd - s)/(f - s))*100 ));
+    const el = document.createElement('div');
+    el.className = `mark ${i % 2 === 0 ? 'top' : 'bottom'}`;
+    el.style.left = pos + '%';
+    el.dataset.pos = String(pos);                      // <— store percent
+    el.dataset.text = `${m.task} • ${fmtISO(mEnd)}`;   // <— store label
+    el.setAttribute('tabindex','0');
+    el.setAttribute('role','button');
+    el.innerHTML = '<span class="label"></span>';      // we’re not using inline labels now
+    bar.appendChild(el);
+    });
+
+    // Popup band controller
+    const popband = document.getElementById('tracker-popband');
+    function showPopupFor(mark){
+    if(!mark) return;
+    const left = mark.dataset.pos + '%';
+    const text = mark.dataset.text || '';
+    popband.innerHTML = `<div class="poplabel" style="left:${left}">${text}</div>`;
+    }
+    function clearPopup(){ popband.innerHTML = ''; }
+
+    // Hover / focus shows the popup in the band
+    bar.addEventListener('mouseover', e=>{
+    const m = e.target.closest('.mark'); if(m) showPopupFor(m);
+    });
+    bar.addEventListener('focusin', e=>{
+    const m = e.target.closest('.mark'); if(m) showPopupFor(m);
+    });
+
+    // Click also shows (and keeps) it; clicking elsewhere clears
+    bar.addEventListener('click', e=>{
+    const m = e.target.closest('.mark'); if(m) showPopupFor(m);
+    });
+    document.addEventListener('click', e=>{
+    if(!bar.contains(e.target)) clearPopup();
+    });
+
+    // Leaving the bar clears transient hover popups
+    bar.addEventListener('mouseleave', clearPopup);
+    bar.addEventListener('focusout', (e)=>{
+    // if leaving the bar entirely, clear
+    if(!bar.contains(e.relatedTarget)) clearPopup();
+    });
+
+    // Tap/click to toggle one label at a time (force below when open)
+    bar.addEventListener('click', (e) => {
+      const m = e.target.closest('.mark');
+      if (!m) return;
+      bar.querySelectorAll('.mark.open').forEach(el => { if (el !== m) { el.classList.remove('open'); el.setAttribute('aria-expanded','false'); }});
+      const willOpen = !m.classList.contains('open');
+      m.classList.toggle('open');
+      m.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    // Keyboard support (Enter/Space)
+    bar.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const m = e.target.closest('.mark');
+      if (!m) return;
+      e.preventDefault();
+      m.click();
+    });
+
+    // Dismiss if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!bar.contains(e.target)) {
+        bar.querySelectorAll('.mark.open').forEach(el => { el.classList.remove('open'); el.setAttribute('aria-expanded','false'); });
+      }
+    });
+
+    // --- Overall progress wording
+    const totalDays = Math.round(total/86400000)+1;
+    const daysDone  = Math.round(elapsed/86400000)+1;
+    document.getElementById('stat-days').textContent = `${pct}% • ${daysDone}/${totalDays} days`;
   })();
 </script>
 {% endblock %}
