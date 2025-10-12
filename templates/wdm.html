@@ -1,0 +1,339 @@
+<!-- templates/wdm.html -->
+{% extends "base.html" %}
+{% block title %}Choose Your Bridge — Weighted Decision Matrix{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.49.1"></script>
+<style>
+  /* Page shell */
+  .wdm-page{max-width:1200px;margin:1rem auto;padding:0 .5rem;overflow-x:hidden}
+  .wdm-head{background:var(--panel);border:var(--line);border-radius:var(--radius);padding:1rem;margin-bottom:1rem}
+  .muted{color:var(--muted)}
+
+  /* Layout */
+  .layout{
+    display:grid;
+    grid-template-columns:minmax(260px,360px) 1fr; /* never smaller than 260 on narrow screens */
+    gap:1rem;
+  }
+  @media (max-width:980px){.layout{grid-template-columns:1fr}}
+
+  /* Cards */
+  .card{background:var(--bg-soft);border:var(--line);border-radius:12px;padding:1rem;min-width:0}
+  .card h2{margin:.1rem 0 .65rem}
+
+  /* Weight controls */
+  .row{display:grid;grid-template-columns:1fr auto;gap:.75rem;margin:.6rem 0}
+  .row label{font-weight:600}
+  .row small{color:var(--muted)}
+  .slider-wrap{display:grid;grid-template-columns:1fr 52px;gap:.5rem;align-items:center}
+  input[type="range"]{width:100%;max-width:100%}
+  .pct{display:inline-block;min-width:52px;text-align:right}
+
+  /* Badges */
+  .pill{display:inline-flex;align-items:center;gap:.4rem;background:#0b1220;border:var(--line);
+        padding:.35rem .6rem;border-radius:999px;white-space:nowrap}
+  .winner{display:inline-flex;align-items:center;gap:.45rem;background:linear-gradient(90deg,#00d4b4,#22c55e);
+          color:#041014;border:none;padding:.4rem .7rem;border-radius:999px;font-weight:800;letter-spacing:.2px}
+
+  /* Table & wrappers */
+  .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}
+  table{width:100%;border-collapse:collapse;min-width:640px} /* allow horizontal scroll on tiny screens */
+  th,td{border:var(--line);padding:.55rem .6rem;vertical-align:top}
+  th{background:#162033;text-align:left}
+  td.num{text-align:right;white-space:nowrap}
+  .hint{font-size:.9rem;margin:.15rem 0 0}
+
+  /* Legend */
+  .legend{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+  .legend span{display:flex;align-items:center;gap:.4rem;background:#0b1220;border:var(--line);padding:.25rem .5rem;border-radius:8px}
+  .dot{width:10px;height:10px;border-radius:50%}
+
+  /* Chart wrapper keeps Apex within page width */
+  #barChart{width:100%;min-width:0}
+
+  /* Mobile tweaks */
+  @media (max-width:680px){
+    .row{grid-template-columns:1fr}              /* stack labels and sliders */
+    .slider-wrap{grid-template-columns:1fr 52px}
+  }
+
+  /* Survey CTA */
+  .cta-band{
+    margin:1rem 0 1.25rem;
+    background:var(--bg-soft);border:var(--line);border-radius:12px;padding:1rem;
+    display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;justify-content:space-between
+  }
+  .cta-band p{margin:0;color:var(--muted)}
+  .btn.cta{background:linear-gradient(90deg,#3b82f6,#00d4b4);border:none;color:#041014;font-weight:800}
+
+  /* Make ApexCharts tooltip text black */
+.apexcharts-tooltip,
+.apexcharts-tooltip-title,
+.apexcharts-tooltip-text{
+  color:#000 !important;
+}
+.apexcharts-tooltip{
+  background:#ffffff !important;
+  border:1px solid #d1d5db !important; /* subtle grey border */
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="wdm-page">
+  <div class="wdm-head">
+    <h1 style="margin:0 0 .25rem">Weighted Decision Matrix — Pick what matters and see the winner</h1>
+    <p class="muted" style="margin:0">
+      Drag the sliders to set how important each metric is. We normalize weights so they sum to 100%.
+      Scores (0–10) reflect our current best judgment for each concept.
+    </p>
+  </div>
+
+  <div class="layout">
+    <!-- Weights -->
+    <div class="card" id="weightsCard">
+      <h2>1) Set your priorities</h2>
+      <div class="row">
+        <label for="w-cost">Cost</label>
+        <div class="slider-wrap">
+          <input id="w-cost" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-cost">—%</span>
+        </div>
+        <small class="hint">Lower capital cost preferred.</small>
+      </div>
+
+      <div class="row">
+        <label for="w-construct">Constructability</label>
+        <div class="slider-wrap">
+          <input id="w-construct" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-construct">—%</span>
+        </div>
+        <small class="hint">Ease of staging, access, risk, schedule.</small>
+      </div>
+
+      <div class="row">
+        <label for="w-env">Environmental Effect</label>
+        <div class="slider-wrap">
+          <input id="w-env" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-env">—%</span>
+        </div>
+        <small class="hint">In-river works, scour, fish habitat.</small>
+      </div>
+
+      <div class="row">
+        <label for="w-property">Property Impact</label>
+        <div class="slider-wrap">
+          <input id="w-property" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-property">—%</span>
+        </div>
+        <small class="hint">Footprint, ROW, interface with neighbors.</small>
+      </div>
+
+      <div class="row">
+        <label for="w-revenue">Community Benefit</label>
+        <div class="slider-wrap">
+          <input id="w-revenue" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-revenue">—%</span>
+        </div>
+        <small class="hint">Tourism draw, place-making, activation.</small>
+      </div>
+
+      <div class="row">
+        <label for="w-comfort">User Comfort</label>
+        <div class="slider-wrap">
+          <input id="w-comfort" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-comfort">—%</span>
+        </div>
+        <small class="hint">Ride feel, vibration, perceived safety.</small>
+      </div>
+
+      <div class="row">
+        <label for="w-respect">Respect (FN / Community)</label>
+        <div class="slider-wrap">
+          <input id="w-respect" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-respect">—%</span>
+        </div>
+        <small class="hint">Cultural fit, height/visual impact, co-design opportunities.</small>
+      </div>
+
+      <div class="row">
+        <label for="w-maint">Maintenance</label>
+        <div class="slider-wrap">
+          <input id="w-maint" type="range" min="0" max="10" step="0.1" />
+          <span class="pct" data-pct-for="w-maint">—%</span>
+        </div>
+        <small class="hint">Inspection effort, coatings, cable upkeep.</small>
+      </div>
+
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.75rem">
+        <button id="btn-defaults" class="btn">Reset to Team Defaults</button>
+        <span id="totalWeight" class="pill">Sum: 100%</span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card">
+      <h2>2) Results</h2>
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;flex-wrap:wrap">
+        <strong>Current winner:</strong>
+        <span id="winnerPill" class="winner">—</span>
+      </div>
+
+      <div id="barChart" style="margin-bottom:1rem"></div>
+
+      <div class="legend" aria-hidden="true">
+        <span><i class="dot" style="background:#3b82f6"></i> Arch</span>
+        <span><i class="dot" style="background:#22c55e"></i> Hybrid Suspension</span>
+        <span><i class="dot" style="background:#f59e0b"></i> Extra-Dosed Cable-Stayed</span>
+      </div>
+
+      <h3 style="margin:.85rem 0 .4rem">Weighted score breakdown</h3>
+      <div class="table-wrap">
+        <table aria-label="WDM table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Weight</th>
+              <th>Arch</th>
+              <th>Hybrid Suspension</th>
+              <th>Extra-Dosed Cable-Stayed</th>
+            </tr>
+          </thead>
+          <tbody id="wdmTableBody"></tbody>
+          <tfoot>
+            <tr>
+              <th>Total</th>
+              <th id="sumWeight">100%</th>
+              <th id="totA" class="num">—</th>
+              <th id="totH" class="num">—</th>
+              <th id="totE" class="num">—</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Survey CTA -->
+  <div class="cta-band">
+    <p><strong>Have your say:</strong> lock in your weights and vote for your preferred option.</p>
+    <a class="btn cta" href="/survey">Vote on the Concept</a>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function(){
+  const BAR_COLORS = ['#3b82f6', '#22c55e', '#f59e0b']; // Arch, Hybrid, Extra
+  const NAMES = ['Arch','Hybrid Suspension','Extra-Dosed Cable-Stayed'];
+
+    
+  // --- Base metric list and team default weights (scaled to 0..10 for sliders)
+  const METRICS = [
+    { key:'cost',        label:'Cost',                       defaultW: 8.0,  score:{ arch:5.06, hybrid:5.00, extra:10.00 } },
+    { key:'construct',   label:'Constructability',           defaultW: 7.0,  score:{ arch:6.00, hybrid:3.00, extra:7.00  } },
+    { key:'env',         label:'Environmental Effect',       defaultW: 6.0,  score:{ arch:8.00, hybrid:3.00, extra:6.00  } },
+    { key:'property',    label:'Property Impact',            defaultW: 2.0,  score:{ arch:4.00, hybrid:6.00, extra:8.00  } },
+    { key:'revenue',     label:'Community Benefit',          defaultW: 3.0,  score:{ arch:6.50, hybrid:5.00, extra:1.00  } },
+    { key:'comfort',     label:'User Comfort',               defaultW: 5.0,  score:{ arch:8.00, hybrid:6.00, extra:9.00  } },
+    { key:'respect',     label:'Respect (FN/Community)',     defaultW: 9.0,  score:{ arch:9.00, hybrid:5.00, extra:5.00  } },
+    { key:'maint',       label:'Maintenance',                defaultW: 4.0,  score:{ arch:7.00, hybrid:5.00, extra:8.00  } },
+  ];
+
+  // Set defaults
+  METRICS.forEach(m=>{
+    const el = document.getElementById('w-' + m.key);
+    el.value = m.defaultW;
+  });
+
+  // Build WDM rows
+  const tbody = document.getElementById('wdmTableBody');
+  METRICS.forEach(m=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${m.label}</td>
+      <td class="num" id="wdisp-${m.key}">—%</td>
+      <td class="num" id="arch-${m.key}">—</td>
+      <td class="num" id="hybrid-${m.key}">—</td>
+      <td class="num" id="extra-${m.key}">—</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Chart
+  const barChart = new ApexCharts(document.getElementById('barChart'),{
+    chart:{ type:'bar', height:280, background:'transparent', foreColor:'#cbd5e1', toolbar:{show:false} },
+    plotOptions:{ bar:{ columnWidth:'45%', borderRadius:6, distributed:true } }, // <—
+    dataLabels:{ enabled:false },
+    xaxis:{ categories:NAMES, labels:{ style:{ colors:'#cbd5e1' } } },
+    yaxis:{ decimalsInFloat:2, labels:{ style:{ colors:'#cbd5e1' } }, title:{ text:'Weighted score (0–10)' } },
+    grid:{ borderColor:'#233047' },
+    colors: BAR_COLORS, // <—
+    tooltip:{ 
+      theme:'light',
+      y:{ formatter: (val) => val.toFixed(2) }
+    },
+    series:[{ name:'Score', data:[0,0,0] }]
+  });
+  barChart.render();
+
+  function update(){
+    const raw = METRICS.map(m => +document.getElementById('w-' + m.key).value);
+    const sumRaw = raw.reduce((a,b)=>a+b,0) || 1;
+
+    // Normalize weights
+    const weights = raw.map(v => v/sumRaw);
+
+    // Update slider % badges
+    document.querySelectorAll('[data-pct-for]').forEach(el=>{
+      const k = el.getAttribute('data-pct-for').replace('w-','');
+      const i = METRICS.findIndex(m=>m.key===k);
+      el.textContent = (weights[i]*100).toFixed(1)+'%';
+    });
+    document.getElementById('totalWeight').textContent = 'Sum: 100%';
+    document.getElementById('sumWeight').textContent = '100%';
+
+    // Contributions and totals
+    let totA=0, totH=0, totE=0;
+    METRICS.forEach((m,i)=>{
+      const w = weights[i];
+      const a = m.score.arch   * w;
+      const h = m.score.hybrid * w;
+      const e = m.score.extra  * w;
+      totA += a; totH += h; totE += e;
+      document.getElementById('wdisp-'+m.key).textContent = (w*100).toFixed(1)+'%';
+      document.getElementById('arch-'+m.key).textContent  = a.toFixed(2);
+      document.getElementById('hybrid-'+m.key).textContent= h.toFixed(2);
+      document.getElementById('extra-'+m.key).textContent = e.toFixed(2);
+    });
+
+    // Winner
+    document.getElementById('totA').textContent = totA.toFixed(2);
+    document.getElementById('totH').textContent = totH.toFixed(2);
+    document.getElementById('totE').textContent = totE.toFixed(2);
+    const order = [{n:'Arch',v:totA},{n:'Hybrid Suspension',v:totH},{n:'Extra-Dosed Cable-Stayed',v:totE}].sort((a,b)=>b.v-a.v);
+    document.getElementById('winnerPill').textContent = `${order[0].n} • ${order[0].v.toFixed(2)}`;
+
+    // Chart
+    barChart.updateSeries([{ data:[totA,totH,totE] }], true);
+  }
+
+  // Events
+  METRICS.forEach(m=>{
+    document.getElementById('w-' + m.key).addEventListener('input', update, {passive:true});
+  });
+  document.getElementById('btn-defaults').addEventListener('click', ()=>{
+    METRICS.forEach(m=>{ document.getElementById('w-' + m.key).value = m.defaultW; });
+    update();
+  });
+
+  // Resize safety
+  window.addEventListener('resize', ()=>barChart.resize(), {passive:true});
+
+  update();
+})();
+</script>
+{% endblock %}

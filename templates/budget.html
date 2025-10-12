@@ -26,17 +26,22 @@
   .box{ background:var(--bg-soft); border:var(--line); border-radius:14px; padding:1rem; color:var(--text); margin-bottom:1rem; }
   .table-wrap{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:10px; }
   table{ width:100%; border-collapse:collapse; }
+  /* Left-align the Team Hours cells */
+  td.hours { text-align: left !important; white-space: nowrap; }
   th,td{ border:var(--line); padding:.6rem .7rem; vertical-align:top; }
   th{ background:#162033; color:var(--text); text-align:left; }
   .num, .money{ text-align:right; white-space:nowrap; }
   .w-240{ min-width:240px; }
-  .w-260{ min-width:260px; }
   .w-220{ min-width:220px; }
 
   .budget-note{
     background:#0b1220; border:var(--line); border-left:4px solid var(--accent);
     border-radius:10px; padding:.8rem 1rem; color:var(--text);
   }
+
+  /* Simple progress bar for “share of $5M” */
+  .share-bar{ display:flex; height:10px; background:#0b1220; border:var(--line); border-radius:999px; overflow:hidden; }
+  .share-fill{ background:linear-gradient(90deg,#00d1b2,#22c55e); width:0%; }
 
   /* Mobile */
   @media (max-width:980px){ .budget-page .summary{ grid-template-columns:1fr 1fr; } }
@@ -50,65 +55,37 @@
 {% block content %}
 <section class="budget-page">
   <div class="header">
-    <h1 style="margin:0 0 .25rem;">Team 7 Proposal Budget</h1>
-    <div class="muted">Scope includes towers, stay-cable system, staged construction analysis, aero-serviceability, and damping considerations.</div>
+    <h1 style="margin:0 0 .25rem;">Team 7 — Design Budget</h1>
+    <div class="muted">Phase-based estimate aligned to a ~$5M project. Values include fees, disbursements, subs, and taxes.</div>
   </div>
 
-  <!-- Summary -->
+  <!-- Summary (auto-filled by script) -->
   <div class="summary">
     <div class="budget-card">
-      <h3>Subtotal (Fees)</h3>
-      <div class="value">$889,910.00</div>
+      <h3>Conceptual (sum)</h3>
+      <div id="card-conceptual" class="value">—</div>
     </div>
     <div class="budget-card">
-      <h3>Normal Disbursements (8%)</h3>
-      <div class="value">$71,192.80</div>
+      <h3>Preliminary (sum)</h3>
+      <div id="card-prelim" class="value">—</div>
     </div>
     <div class="budget-card">
-      <h3>Subtotal (Fees + Disbursements)</h3>
-      <div class="value">$1,230,102.80</div>
+      <h3>Detailed (sum)</h3>
+      <div id="card-detailed" class="value">—</div>
     </div>
     <div class="budget-card">
-      <h3>Estimated Total (incl. Taxes)</h3>
-      <div class="value">$1,301,607.94</div>
+      <h3>Grand Total (design)</h3>
+      <div id="card-grand" class="value">—</div>
+      <div class="share-bar" style="margin-top:.5rem;"><div id="share-fill" class="share-fill"></div></div>
+      <small class="muted"><span id="share-pct">—</span> of $5,000,000</small>
     </div>
   </div>
 
-  <!-- Professional Fees (by role) -->
-  <div class="box">
-    <h2>Professional Fees</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th class="w-240">Role</th>
-            <th class="num">Hours</th>
-            <th class="num">Rate</th>
-            <th class="money">Cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Project Manager (E5)</td><td class="num">250</td><td class="num">$299.00</td><td class="money">$74,750.00</td></tr>
-          <tr><td>Senior Engineers (E4)</td><td class="num">720</td><td class="num">$274.00</td><td class="money">$197,280.00</td></tr>
-          <tr><td>Project Engineers (E3)</td><td class="num">1,800</td><td class="num">$219.00</td><td class="money">$394,200.00</td></tr>
-          <tr><td>Technologists (T4/T5 avg)</td><td class="num">980</td><td class="num">$216.00</td><td class="money">$211,680.00</td></tr>
-          <tr><td>Admin</td><td class="num">150</td><td class="num">$80.00</td><td class="money">$12,000.00</td></tr>
-          <tr>
-            <th>Subtotal (fees)</th>
-            <th class="num">5,760</th>
-            <th class="num">—</th>
-            <th class="money">$889,910.00</th>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Phase Breakdown -->
+  <!-- Phase Breakdown (authoritative rows; script computes totals) -->
   <div class="box">
     <h2>Phase Breakdown</h2>
     <div class="table-wrap">
-      <table>
+      <table id="phase-table">
         <thead>
           <tr>
             <th>Cost Metric</th>
@@ -119,52 +96,123 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Team Hours</td><td class="num">864</td><td class="num">1,440</td><td class="num">3,456</td><td class="num">5,760</td></tr>
-          <tr><td>Team Total Costs</td><td class="money">$133,486.50</td><td class="money">$222,477.50</td><td class="money">$533,946.00</td><td class="money">$889,910.00</td></tr>
-          <tr><td>Normal Disbursements</td><td class="money">$10,678.92</td><td class="money">$17,798.20</td><td class="money">$42,715.68</td><td class="money">$71,192.80</td></tr>
-          <tr><td>Project Specific Disbursements</td><td class="money">$7,700.00</td><td class="money">$23,100.00</td><td class="money">$46,200.00</td><td class="money">$77,000.00</td></tr>
-          <tr><td>Subconsultants</td><td class="money">$12,600.00</td><td class="money">$50,400.00</td><td class="money">$63,000.00</td><td class="money">$126,000.00</td></tr>
-          <tr><td>Subcontractors</td><td class="money">$3,300.00</td><td class="money">$23,100.00</td><td class="money">$39,600.00</td><td class="money">$66,000.00</td></tr>
-          <tr><td>GST</td><td class="money">$8,388.27</td><td class="money">$16,843.79</td><td class="money">$36,273.08</td><td class="money">$61,505.14</td></tr>
-          <tr><td>PST</td><td class="money">$1,000.00</td><td class="money">$3,000.00</td><td class="money">$6,000.00</td><td class="money">$10,000.00</td></tr>
+          <tr>
+            <td>Team Hours</td>
+            <td class="hours">117</td>
+            <td class="hours">195</td>
+            <td class="hours">468</td>
+            <td class="hours">780</td>
+          </tr>
+
+          <tr data-row>
+            <td>Team Total Costs</td>
+            <td data-v="26770.50"></td>
+            <td data-v="44617.50"></td>
+            <td data-v="107082.00"></td>
+            <td class="row-sum"></td>
+          </tr>
+          <tr data-row>
+            <td>Normal Disbursements</td>
+            <td data-v="2141.64"></td>
+            <td data-v="3569.40"></td>
+            <td data-v="8566.56"></td>
+            <td class="row-sum"></td>
+          </tr>
+          <tr data-row>
+            <td>Project-Specific Disbursements</td>
+            <td data-v="7700.00"></td>
+            <td data-v="23100.00"></td>
+            <td data-v="46200.00"></td>
+            <td class="row-sum"></td>
+          </tr>
+          <tr data-row>
+            <td>Sub-consultants</td>
+            <td data-v="12600.00"></td>
+            <td data-v="50400.00"></td>
+            <td data-v="63000.00"></td>
+            <td class="row-sum"></td>
+          </tr>
+          <tr data-row>
+            <td>Subcontractors</td>
+            <td data-v="3300.00"></td>
+            <td data-v="23100.00"></td>
+            <td data-v="39600.00"></td>
+            <td class="row-sum"></td>
+          </tr>
+          <tr data-row>
+            <td>GST</td>
+            <td data-v="2625.61"></td>
+            <td data-v="7239.35"></td>
+            <td data-v="13222.43"></td>
+            <td class="row-sum"></td>
+          </tr>
+          <tr data-row>
+            <td>PST</td>
+            <td data-v="1000.00"></td>
+            <td data-v="3000.00"></td>
+            <td data-v="6000.00"></td>
+            <td class="row-sum"></td>
+          </tr>
+
           <tr>
             <th>Phase Totals</th>
-            <th class="money">$177,153.69</th>
-            <th class="money">$336,719.49</th>
-            <th class="money">$787,734.76</th>
-            <th class="money">$1,301,607.94</th>
+            <th id="sum-conceptual" class="money">—</th>
+            <th id="sum-prelim"     class="money">—</th>
+            <th id="sum-detailed"   class="money">—</th>
+            <th id="sum-grand"      class="money">—</th>
           </tr>
         </tbody>
       </table>
     </div>
-    <div class="budget-note">
-      The phase allocation aligns with project sequencing. Conceptual focuses on option evaluation and startup investigations, Preliminary advances feasibility, and Detailed concentrates the majority of technical effort, permitting, and tender-ready documentation.
-    </div>
-  </div>
 
-  <!-- Taxes & Total -->
-  <div class="box">
-    <h2>Taxes & Total</h2>
-    <div class="table-wrap" style="margin-bottom:.75rem;">
-      <table>
-        <thead>
-          <tr>
-            <th class="w-220">Tax Type</th>
-            <th>Applied On</th>
-            <th class="num">Rate</th>
-            <th class="money">Cost</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>GST</td><td>Fees + Disbursements</td><td class="num">5.00%</td><td class="money">$61,505.14</td></tr>
-          <tr><td>PST</td><td>Software + Goods</td><td class="num">7.00%</td><td class="money">$10,000.00</td></tr>
-          <tr>
-            <th colspan="3">Estimated Total Design Fee (Cable-Stayed)</th>
-            <th class="money">$1,301,607.94</th>
-          </tr>
-        </tbody>
-      </table>
+    <div class="budget-note" style="margin-top:.75rem;">
+      Conceptual covers option screening and early coordination; Preliminary advances the preferred concept to feasibility; Detailed concentrates production, coordination with subs, permitting support, and tender documentation.
     </div>
   </div>
 </section>
+
+<script>
+(function(){
+  const fmt = v => v.toLocaleString('en-CA',{style:'currency',currency:'CAD'});
+  const table = document.getElementById('phase-table');
+
+  let c=0,p=0,d=0,grand=0;
+
+  // Walk cost rows, fill cells and compute
+  table.querySelectorAll('tr[data-row]').forEach(tr=>{
+    const tds = tr.querySelectorAll('[data-v]');
+    const vC = Number(tds[0].dataset.v||0);
+    const vP = Number(tds[1].dataset.v||0);
+    const vD = Number(tds[2].dataset.v||0);
+
+    tds[0].textContent = fmt(vC);
+    tds[1].textContent = fmt(vP);
+    tds[2].textContent = fmt(vD);
+
+    const rowTotal = vC+vP+vD;
+    tr.querySelector('.row-sum').textContent = fmt(rowTotal);
+
+    c+=vC; p+=vP; d+=vD; grand+=rowTotal;
+  });
+
+  // Totals in table
+  document.getElementById('sum-conceptual').textContent = fmt(c);
+  document.getElementById('sum-prelim').textContent     = fmt(p);
+  document.getElementById('sum-detailed').textContent   = fmt(d);
+  document.getElementById('sum-grand').textContent      = fmt(grand);
+
+  // Summary cards
+  document.getElementById('card-conceptual').textContent = fmt(c);
+  document.getElementById('card-prelim').textContent     = fmt(p);
+  document.getElementById('card-detailed').textContent   = fmt(d);
+  document.getElementById('card-grand').textContent      = fmt(grand);
+
+  // Share of $5M
+  const pct = Math.min(100, (grand / 5_000_000) * 100);
+  document.getElementById('share-fill').style.width = pct.toFixed(2) + '%';
+  document.getElementById('share-pct').textContent   = pct.toFixed(1) + '%';
+
+  // Note: due to floating point, this may display $494,834.99 (off $0.01 from a typed value).
+})();
+</script>
 {% endblock %}
