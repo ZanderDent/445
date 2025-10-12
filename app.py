@@ -108,6 +108,18 @@ def schedule_json():
     # serve the editable JSON from /static so you can change it without touching Python
     return send_from_directory("static", "schedule.json", mimetype="application/json")
 
+@app.route("/viewer")
+def viewer():
+    # default to your STL; allow override via ?file=/static/whatever.stl
+    model_url = request.args.get("file", "/static/our_design.stl")
+    return render_template("viewer.html", model_url=model_url)
+
+@app.route("/wdm")
+def wdm():
+    return render_template("wdm.html")
+
+
+
 @app.route("/api/cpm", methods=["POST"])
 def api_cpm():
     data = request.get_json(force=True) or {}
