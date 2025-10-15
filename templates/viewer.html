@@ -4,12 +4,10 @@
 {% block content %}
   <div class="viewer-wrap"
        style="height:70vh;position:relative;border:1px solid #1f2937;border-radius:12px;overflow:hidden">
-    <!-- Canvas host -->
     <div id="viewer"
          style="position:absolute;inset:0;width:100%;height:100%;
                 touch-action:none;overscroll-behavior:contain;-webkit-user-select:none;user-select:none;"></div>
 
-    <!-- Status (kept small, top-right) -->
     <div id="status"
          style="position:absolute;top:10px;right:10px;background:#0f172a;opacity:.92;
                 padding:.35rem .6rem;border-radius:999px;border:1px solid #334155;
@@ -17,7 +15,6 @@
       Booting…
     </div>
 
-    <!-- CAD-style toolbar (responsive) -->
     <div class="toolbar" id="toolbar">
       <button id="btnPivot" class="tb active" aria-pressed="true">Pivot</button>
       <button id="btnPan"   class="tb">Pan</button>
@@ -31,13 +28,10 @@
   </p>
 
   <style>
-    /* Toolbar styles with mobile-first layout (bottom-center) */
     .toolbar {
-      position: absolute;
-      left: 0; right: 0; bottom: 10px;
-      display: flex; gap: .5rem; justify-content: center; flex-wrap: nowrap;
-      padding: .4rem .6rem;
-      background: #0b0f14cc; backdrop-filter: blur(6px);
+      position: absolute; left: 0; right: 0; bottom: 10px;
+      display: flex; gap: .5rem; justify-content: center;
+      padding: .4rem .6rem; background: #0b0f14cc; backdrop-filter: blur(6px);
       border: 1px solid #334155; border-radius: 12px;
       margin: 0 auto; width: fit-content; z-index: 30;
       max-width: calc(100% - 20px);
@@ -47,24 +41,18 @@
       border:1px solid #334155; border-radius:10px;
       padding:.5rem .7rem; font:13px/1 system-ui; cursor:pointer;
       min-width:64px; text-align:center;
-      touch-action: manipulation;
     }
     .tb.active { background:#14213a; border-color:#3b82f6; color:#e2e8f0; }
     .tb:active { transform:translateY(1px); }
     @media (hover:hover) { .tb:hover { background:#14213a; } }
-
-    /* On wider screens, dock to top-left to keep out of the way */
     @media (min-width: 760px) {
-      .toolbar {
-        left: 10px; right: auto; bottom: auto; top: 10px;
-        justify-content: flex-start;
-      }
+      .toolbar { left: 10px; right: auto; bottom: auto; top: 10px; justify-content: flex-start; }
     }
   </style>
 {% endblock %}
 
 {% block extra_scripts %}
-  <!-- Import map to local ESM files -->
+  <!-- Minimal local ESM -->
   <script type="importmap">
   {
     "imports": {
@@ -79,6 +67,37 @@
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 
+    // ------------ HARD-CODED VIEW TWEAKS (edit these) ------------
+    const TWEAK = {
+      // Your CAD is Z-up → make it Y-up for three.js
+      zUpToYUp: true,                   // rotate X by -90°
+
+      // Make the long span horizontal: rotate ~90° around Z
+      // (If it’s the wrong way, flip the sign to -90)
+      rotationDeg: { x: 0, y: 0, z: 100 },
+
+      // After centering, nudge if needed (usually keep 0s)
+      offset: { x: 0, y: 0, z: 0 },
+
+      // Auto-normalize the model so its largest dimension = N scene units.
+      // This guarantees it fills the view nicely regardless of STL units.
+      normalizeTo: 50,   // try 50 (or 100). Set to 0 to disable.
+
+      // If you additionally want a fixed multiplier after normalization
+      scale: 1,          // keep 1 unless you want a little extra
+
+      // Where to aim the camera relative to the model center (optional)
+      cameraBias: { x: 0, y: 0, z: 0 },
+
+      // Shift the orbit pivot relative to the model center (optional)
+      pivotOffset: { x: 500, y: -200, z: -500 },
+
+      // How tight the initial fit is (smaller = closer)
+      padding: 1.25
+    };
+
+    // -------------------------------------------------------------
+
     const container = document.getElementById('viewer');
     const statusEl  = document.getElementById('status');
 
@@ -88,7 +107,6 @@
     const btnReset = document.getElementById('btnReset');
     const btnGrid  = document.getElementById('btnGrid');
 
-    // Scene / Camera / Renderer
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0b0f14);
 
@@ -98,167 +116,158 @@
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setClearColor(0x0b0f14, 1);
     container.appendChild(renderer.domElement);
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
     controls.screenSpacePanning = true;
+    controls.zoomToCursor = true;
+    controls.zoomSpeed = 0.15;
+    controls.panSpeed  = 0.9;
     controls.rotateSpeed = 0.9;
-    controls.zoomSpeed   = 0.8;
-    controls.panSpeed    = 0.9;
 
-    // Lights + grid
     scene.add(new THREE.HemisphereLight(0xffffff, 0x263238, 0.95));
-    const dir = new THREE.DirectionalLight(0xffffff, 1.1); dir.position.set(5,10,7); scene.add(dir);
-    const grid = new THREE.GridHelper(10, 20, 0x334155, 0x1f2937); grid.position.y = -0.0001; scene.add(grid);
+    const dir = new THREE.DirectionalLight(0xffffff, 1.1);
+    dir.position.set(5,10,7);
+    scene.add(dir);
 
-    // Resize
+    const grid = new THREE.GridHelper(10, 20, 0x334155, 0x1f2937);
+    grid.position.y = -0.0001;
+    scene.add(grid);
+
     function resize(){
       const r = container.getBoundingClientRect();
       const w = Math.max(1, r.width), h = Math.max(1, r.height);
       renderer.setSize(w, h, false);
-      camera.aspect = w / h; camera.updateProjectionMatrix();
+      camera.aspect = w/h;
+      camera.updateProjectionMatrix();
     }
     window.addEventListener('resize', resize, { passive:true });
 
-    // Fit/center helpers (robust and re-usable)
-    function computeCenterAndSize(obj){
+    function fitTo(obj, {
+      padding = TWEAK.padding,
+      pivotOffset = new THREE.Vector3(TWEAK.pivotOffset.x, TWEAK.pivotOffset.y, TWEAK.pivotOffset.z),
+      cameraBias  = new THREE.Vector3(TWEAK.cameraBias.x,  TWEAK.cameraBias.y,  TWEAK.cameraBias.z)
+    } = {}) {
       const box = new THREE.Box3().setFromObject(obj);
       const size = box.getSize(new THREE.Vector3());
-      const center = box.getCenter(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
-      return { box, size, center, maxDim };
-    }
+      const center = box.getCenter(new THREE.Vector3()).add(pivotOffset);
+      const maxDim = Math.max(size.x,size.y,size.z) || 1;
 
-    function fitTo(obj, padding = 1.6){
-      const { center, maxDim } = computeCenterAndSize(obj);
       const fitDist = maxDim / (2 * Math.tan(Math.PI * camera.fov / 360));
-      camera.position.copy(center).add(new THREE.Vector3(1,1,1).normalize().multiplyScalar(fitDist * padding));
+      const diagDir = new THREE.Vector3(1,1,1).normalize();
+
+      camera.position.copy(center)
+        .add(diagDir.multiplyScalar(fitDist * padding))
+        .add(cameraBias);
+
       camera.near = Math.max(0.001, maxDim / 1000);
       camera.far  = Math.max(2000, fitDist * 50);
       camera.updateProjectionMatrix();
+
       controls.target.copy(center);
+      controls.minDistance = Math.max(maxDim * 0.01, 0.001);
+      controls.maxDistance = fitDist * 50;
       controls.update();
     }
 
-    // Load STL and center geometry at origin so it appears truly centered
     const MODEL_URL = "{{ model_url|default('/static/our_design.stl')|safe }}";
     const loader = new STLLoader();
     const material = new THREE.MeshStandardMaterial({
       color: 0xb9c6d3, metalness: 0.05, roughness: 0.7, side: THREE.DoubleSide
     });
 
-    let stlGroup = null;
-    let stlMesh  = null;
-
-    // Test cube — proves rendering even if STL fails
-    (function testCube(){
-      const geo = new THREE.BoxGeometry(0.12,0.12,0.12);
-      const mat = new THREE.MeshStandardMaterial({ color: 0x91b4ff, roughness: .6, metalness:.05 });
-      const cube = new THREE.Mesh(geo, mat);
-      scene.add(cube);
-      fitTo(cube);
-      statusEl.textContent = 'Canvas OK. Loading model…';
-    })();
+    let model = null; // Group
 
     loader.load(
       MODEL_URL,
       (geometry)=>{
-        if (!geometry.getAttribute('normal')) geometry.computeVertexNormals();
+        // Normalize geometry around origin (this truly centers it)
+        geometry.computeVertexNormals();
+        geometry.center(); // << puts the mesh's local origin at the bbox center
 
-        geometry.computeBoundingBox();
-        const bbox   = geometry.boundingBox.clone();
-        const center = bbox.getCenter(new THREE.Vector3());
+        const mesh = new THREE.Mesh(geometry, material);
 
-        stlMesh = new THREE.Mesh(geometry, material);
-        // Center the mesh at the origin so fit/target hit the true middle.
-        stlMesh.position.sub(center);
+        // Apply hardcoded tweaks in this order: scale → up-axis fix → extra rotation → offset
+        if (TWEAK.scale !== 1) mesh.scale.setScalar(TWEAK.scale);
+        if (TWEAK.zUpToYUp)    mesh.rotation.x += -Math.PI / 2;
 
-        // If model exported in millimeters, enable to normalize:
-        // stlMesh.scale.set(0.001, 0.001, 0.001);
+        mesh.rotation.x += THREE.MathUtils.degToRad(TWEAK.rotationDeg.x);
+        mesh.rotation.y += THREE.MathUtils.degToRad(TWEAK.rotationDeg.y);
+        mesh.rotation.z += THREE.MathUtils.degToRad(TWEAK.rotationDeg.z);
 
-        stlGroup = new THREE.Group();
-        stlGroup.add(stlMesh);
-        scene.add(stlGroup);
+        mesh.position.add(new THREE.Vector3(TWEAK.offset.x, TWEAK.offset.y, TWEAK.offset.z));
 
-        fitTo(stlGroup);  // <= ensures initial view is centered and framed
+        model = new THREE.Group();
+        model.add(mesh);
+        scene.add(model);
+
+        // Fit AFTER transforms so it appears dead-center
+        fitTo(model);
         resize();
         statusEl.textContent = 'Loaded ✓';
       },
       (xhr)=>{
-        if (xhr && xhr.loaded && xhr.total) {
-          statusEl.textContent = `Loading… ${(xhr.loaded/xhr.total*100).toFixed(0)}%`;
-        }
+        if (xhr.total) statusEl.textContent = `Loading… ${(xhr.loaded/xhr.total*100).toFixed(0)}%`;
       },
       (err)=>{
-        console.error('STL load error:', err);
+        console.error(err);
         statusEl.textContent = 'Error loading STL';
       }
     );
 
-    // ---------- Exclusive modes (Pivot / Pan / Zoom) ----------
+    // ---- Modes (exclusive) ----
     const MOUSE = THREE.MOUSE;
-    function setActive(btn) {
-      [btnPivot, btnPan, btnZoom, btnReset, btnGrid].forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-    function setMode(mode) {
-      if (mode === 'pivot') {
-        controls.enableRotate = true;  controls.enablePan = false; controls.enableZoom = false;
-        controls.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.ROTATE, RIGHT: MOUSE.ROTATE, WHEEL: MOUSE.WHEEL };
-        controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.ROTATE };
-        setActive(btnPivot); statusEl.textContent = 'Mode: Pivot (drag to rotate)';
-      } else if (mode === 'pan') {
-        controls.enableRotate = false; controls.enablePan = true;  controls.enableZoom = false;
-        controls.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN, WHEEL: MOUSE.WHEEL };
-        controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.PAN };
-        setActive(btnPan); statusEl.textContent = 'Mode: Pan (drag to pan)';
-      } else if (mode === 'zoom') {
-        controls.enableRotate = false; controls.enablePan = false; controls.enableZoom = true;
-        controls.mouseButtons = { LEFT: MOUSE.DOLLY, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.DOLLY, WHEEL: MOUSE.WHEEL };
-        controls.touches = { ONE: THREE.TOUCH.DOLLY_PAN, TWO: THREE.TOUCH.DOLLY_PAN };
-        setActive(btnZoom); statusEl.textContent = 'Mode: Zoom (drag to zoom, wheel/pinch too)';
+    function setActive(btn){ [btnPivot,btnPan,btnZoom,btnReset,btnGrid].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+    function setMode(mode){
+      if (mode==='pivot'){
+        controls.enableRotate=true;controls.enablePan=false;controls.enableZoom=false;
+        controls.mouseButtons={LEFT:MOUSE.ROTATE,MIDDLE:MOUSE.ROTATE,RIGHT:MOUSE.ROTATE,WHEEL:MOUSE.WHEEL};
+        controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.ROTATE};
+        controls.zoomSpeed=0.15; setActive(btnPivot); statusEl.textContent='Mode: Pivot';
+      } else if (mode==='pan'){
+        controls.enableRotate=false;controls.enablePan=true;controls.enableZoom=false;
+        controls.mouseButtons={LEFT:MOUSE.PAN,MIDDLE:MOUSE.PAN,RIGHT:MOUSE.PAN,WHEEL:MOUSE.WHEEL};
+        controls.touches={ONE:THREE.TOUCH.PAN,TWO:THREE.TOUCH.PAN};
+        controls.zoomSpeed=0.15; setActive(btnPan); statusEl.textContent='Mode: Pan';
+      } else if (mode==='zoom'){
+        controls.enableRotate=false;controls.enablePan=false;controls.enableZoom=true;
+        controls.mouseButtons={LEFT:MOUSE.DOLLY,MIDDLE:MOUSE.DOLLY,RIGHT:MOUSE.DOLLY,WHEEL:MOUSE.WHEEL};
+        controls.touches={ONE:THREE.TOUCH.DOLLY_PAN,TWO:THREE.TOUCH.DOLLY_PAN};
+        controls.zoomSpeed=0.10; setActive(btnZoom); statusEl.textContent='Mode: Zoom';
       }
     }
-    btnPivot.addEventListener('click', ()=> setMode('pivot'));
-    btnPan.addEventListener('click',   ()=> setMode('pan'));
-    btnZoom.addEventListener('click',  ()=> setMode('zoom'));
+    btnPivot.onclick=()=>setMode('pivot');
+    btnPan.onclick  =()=>setMode('pan');
+    btnZoom.onclick =()=>setMode('zoom');
 
-    // Reset: re-center + re-fit on the model (works on any size/position)
-    btnReset.addEventListener('click', ()=>{
-      if (stlGroup) {
-        fitTo(stlGroup, 1.6);  // centers target and frames the model
-        setMode('pivot');      // go back to a sensible default
-        statusEl.textContent = 'View reset (centered & fit)';
-      } else {
-        // no model yet; just reset around origin
-        camera.position.set(2.5, 1.8, 3.2);
-        controls.target.set(0,0,0);
-        controls.update();
-        statusEl.textContent = 'View reset';
-      }
-    });
+    // Reset = re-apply hardcoded tweaks + re-fit (guaranteed center)
+    btnReset.onclick = ()=>{
+      if (!model) return;
+      // undo transforms first
+      const mesh = model.children[0];
+      mesh.position.set(0,0,0);
+      mesh.rotation.set(0,0,0);
+      mesh.scale.set(1,1,1);
 
-    // Grid toggle
-    btnGrid.addEventListener('click', ()=> { grid.visible = !grid.visible; });
+      if (TWEAK.scale !== 1) mesh.scale.setScalar(TWEAK.scale);
+      if (TWEAK.zUpToYUp)    mesh.rotation.x += -Math.PI / 2;
+      mesh.rotation.x += THREE.MathUtils.degToRad(TWEAK.rotationDeg.x);
+      mesh.rotation.y += THREE.MathUtils.degToRad(TWEAK.rotationDeg.y);
+      mesh.rotation.z += THREE.MathUtils.degToRad(TWEAK.rotationDeg.z);
+      mesh.position.add(new THREE.Vector3(TWEAK.offset.x, TWEAK.offset.y, TWEAK.offset.z));
 
-    // Defaults
+      fitTo(model);
+      setMode('pivot');
+      statusEl.textContent = 'View reset (centered & fit)';
+    };
+
+    btnGrid.onclick = ()=>{ grid.visible = !grid.visible; };
+
+    // Defaults + render
     setMode('pivot');
-    container.addEventListener('dblclick', ()=> { if (stlGroup) fitTo(stlGroup); }, { passive:true });
-    let lastTap = 0; container.addEventListener('touchend', (e)=>{
-      const now = performance.now();
-      if (now - lastTap < 300) { if (stlGroup) fitTo(stlGroup); }
-      lastTap = now;
-    }, { passive:true });
-
-    // Keep focus so trackpad wheel/pinch reach canvas reliably
-    container.addEventListener('pointerdown', ()=> container.focus?.(), { passive:true });
-
-    // Render
-    function loop(){ controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); }
+    function loop(){ controls.update(); renderer.render(scene,camera); requestAnimationFrame(loop); }
     resize(); loop();
   </script>
 {% endblock %}

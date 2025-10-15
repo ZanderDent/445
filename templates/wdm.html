@@ -183,12 +183,6 @@
 
       <div id="barChart" style="margin-bottom:1rem"></div>
 
-      <div class="legend" aria-hidden="true">
-        <span><i class="dot" style="background:#3b82f6"></i> Arch</span>
-        <span><i class="dot" style="background:#22c55e"></i> Hybrid Suspension</span>
-        <span><i class="dot" style="background:#f59e0b"></i> Extra-Dosed Cable-Stayed</span>
-      </div>
-
       <h3 style="margin:.85rem 0 .4rem">Weighted score breakdown</h3>
       <div class="table-wrap">
         <table aria-label="WDM table">
@@ -232,16 +226,19 @@
 
     
   // --- Base metric list and team default weights (scaled to 0..10 for sliders)
+// Updated WDM inputs (weights reflect your new table; scores derived from weighted scores / weights)
+// Sliders are 0–10 and will be normalized; defaults below sum to 10 so they display your exact %.
   const METRICS = [
-    { key:'cost',        label:'Cost',                       defaultW: 8.0,  score:{ arch:5.06, hybrid:5.00, extra:10.00 } },
-    { key:'construct',   label:'Constructability',           defaultW: 7.0,  score:{ arch:6.00, hybrid:3.00, extra:7.00  } },
-    { key:'env',         label:'Environmental Effect',       defaultW: 6.0,  score:{ arch:8.00, hybrid:3.00, extra:6.00  } },
-    { key:'property',    label:'Property Impact',            defaultW: 2.0,  score:{ arch:4.00, hybrid:6.00, extra:8.00  } },
-    { key:'revenue',     label:'Community Benefit',          defaultW: 3.0,  score:{ arch:6.50, hybrid:5.00, extra:1.00  } },
-    { key:'comfort',     label:'User Comfort',               defaultW: 5.0,  score:{ arch:8.00, hybrid:6.00, extra:9.00  } },
-    { key:'respect',     label:'Respect (FN/Community)',     defaultW: 9.0,  score:{ arch:9.00, hybrid:5.00, extra:5.00  } },
-    { key:'maint',       label:'Maintenance',                defaultW: 4.0,  score:{ arch:7.00, hybrid:5.00, extra:8.00  } },
+    { key:'cost',      label:'Cost',                    defaultW: 1.8,  score:{ arch:10.00, hybrid:5.06, extra:9.00 } }, // arch clamped to 10
+    { key:'construct', label:'Constructability',        defaultW: 1.6,  score:{ arch:2.00,  hybrid:3.00, extra:6.94 } },
+    { key:'env',       label:'Environmental Effect',    defaultW: 1.4,  score:{ arch:6.79,  hybrid:2.93, extra:5.86 } },
+    { key:'property',  label:'Property Impact',         defaultW: 0.5,  score:{ arch:3.60,  hybrid:5.40, extra:7.20 } },
+    { key:'revenue',   label:'Community Benefit',       defaultW: 0.7,  score:{ arch:6.29,  hybrid:4.86, extra:1.00 } },
+    { key:'comfort',   label:'User Comfort',            defaultW: 1.1,  score:{ arch:8.27,  hybrid:6.18, extra:9.27 } },
+    { key:'respect',   label:'Respect (FN/Community)',  defaultW: 2.0,  score:{ arch:6.15,  hybrid:5.10, extra:5.10 } },
+    { key:'maint',     label:'Maintenance',             defaultW: 0.9,  score:{ arch:7.11,  hybrid:5.00, extra:8.11 } },
   ];
+
 
   // Set defaults
   METRICS.forEach(m=>{
@@ -264,21 +261,39 @@
   });
 
   // Chart
-  const barChart = new ApexCharts(document.getElementById('barChart'),{
-    chart:{ type:'bar', height:280, background:'transparent', foreColor:'#cbd5e1', toolbar:{show:false} },
-    plotOptions:{ bar:{ columnWidth:'45%', borderRadius:6, distributed:true } }, // <—
-    dataLabels:{ enabled:false },
-    xaxis:{ categories:NAMES, labels:{ style:{ colors:'#cbd5e1' } } },
-    yaxis:{ decimalsInFloat:2, labels:{ style:{ colors:'#cbd5e1' } }, title:{ text:'Weighted score (0–10)' } },
-    grid:{ borderColor:'#233047' },
-    colors: BAR_COLORS, // <—
-    tooltip:{ 
-      theme:'light',
-      y:{ formatter: (val) => val.toFixed(2) }
+// ✅ FIXED ApexCharts config
+// - Removed the invalid "legend_text: disable" (ApexCharts doesn’t have that option)
+// - Properly disables the legend with legend:{show:false}
+// - Keeps distributed colors and your custom BAR_COLORS
+// - Tooltip uses light theme; CSS below forces solid black text if your theme overrides it
+
+
+  const barChart = new ApexCharts(document.getElementById('barChart'), {
+    chart: {
+      type: 'bar',
+      height: 280,
+      background: 'transparent',
+      foreColor: '#cbd5e1',
+      toolbar: { show: false }
     },
-    series:[{ name:'Score', data:[0,0,0] }]
+    plotOptions: {
+      bar: { columnWidth: '45%', borderRadius: 6, distributed: true }
+    },
+    dataLabels: { enabled: false },
+    xaxis: { categories: NAMES, labels: { style: { colors: '#cbd5e1' } } },
+    yaxis: { decimalsInFloat: 2, labels: { style: { colors: '#cbd5e1' } }, title: { text: 'Weighted score (0–10)' } },
+    grid: { borderColor: '#233047' },
+    colors: BAR_COLORS,
+    legend: { show: false },               // ← correct way to disable legend
+    tooltip: {
+      theme: 'light',
+      y: { formatter: (val) => val.toFixed(2) }
+    },
+    series: [{ name: 'Score', data: [0, 0, 0] }]
   });
+
   barChart.render();
+
 
   function update(){
     const raw = METRICS.map(m => +document.getElementById('w-' + m.key).value);
