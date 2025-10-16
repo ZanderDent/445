@@ -1,35 +1,38 @@
 {% extends "base.html" %}
-{% block title %}3D Viewer{% endblock %}
+{% block title %}3D Viewer (Local File){% endblock %}
 
 {% block content %}
+  <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem;flex-wrap:wrap">
+    <!-- Google Drive direct-download link (file must be shared: Anyone with the link) -->
+    <a class="tb"
+       href="https://drive.google.com/uc?export=download&id=1x1jy9Gui5NSRHNTPjFpvdkhQmsHa1bU7"
+       target="_blank" rel="noopener"
+       style="text-decoration:none;background:#0f172a;color:#cbd5e1;border:1px solid #334155;border-radius:10px;padding:.5rem .7rem;font:13px/1 system-ui;">
+      ⬇️ Download from Google Drive
+    </a>
+
+    <button id="btnOpen" class="tb"
+            style="background:#0f172a;color:#cbd5e1;border:1px solid #334155;border-radius:10px;padding:.5rem .7rem;font:13px/1 system-ui;">
+      📂 Open STL…
+    </button>
+
+    <input id="fileInput" type="file" accept=".stl,.STL" style="display:none" />
+    <span style="color:#94a3b8;font:13px/1.2 system-ui">After downloading, click “Open STL…” and choose the file.</span>
+  </div>
+
   <div class="viewer-wrap"
        style="height:70vh;position:relative;border:1px solid #1f2937;border-radius:12px;overflow:hidden">
     <div id="viewer"
          style="position:absolute;inset:0;width:100%;height:100%;
                 touch-action:none;overscroll-behavior:contain;-webkit-user-select:none;user-select:none;"></div>
 
-    <!-- Status pill -->
     <div id="status"
          style="position:absolute;top:10px;right:10px;background:#0f172a;opacity:.92;
                 padding:.35rem .6rem;border-radius:999px;border:1px solid #334155;
-                font:12px/1.2 system-ui;max-width:52ch;z-index:32">
-      Booting…
+                font:12px/1.2 system-ui;max-width:60ch;z-index:20">
+      Waiting for a file…
     </div>
 
-    <!-- Quick loaders -->
-    <div class="quickload"
-         style="position:absolute;left:10px;right:10px;bottom:64px;display:flex;gap:.5rem;z-index:31;align-items:center;justify-content:center;flex-wrap:wrap">
-      <input id="urlInput" type="text"
-             placeholder="https://raw.githubusercontent.com/owner/repo/branch/path/to/model.stl  — or  owner/repo@main:path/to/model.stl"
-             style="flex:1;min-width:220px;max-width:820px;background:#0b1220;color:#cbd5e1;border:1px solid #334155;border-radius:10px;padding:.45rem .6rem;font:13px system-ui;">
-      <button id="btnLoadUrl" class="tb" style="white-space:nowrap;">Load URL</button>
-      <label class="tb" style="cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;margin:0">
-        <input id="fileInput" type="file" accept=".stl,.STL" style="display:none;">
-        Open File…
-      </label>
-    </div>
-
-    <!-- Toolbar -->
     <div class="toolbar" id="toolbar">
       <button id="btnPivot" class="tb active" aria-pressed="true">Pivot</button>
       <button id="btnPan"   class="tb">Pan</button>
@@ -38,7 +41,6 @@
       <button id="btnGrid"  class="tb">Grid</button>
     </div>
   </div>
-
   <p style="margin-top:.75rem;color:#64748b;margin-bottom:0">
     Mode is <em>exclusive</em>. Drag with finger/trackpad/mouse to perform the selected action.
   </p>
@@ -47,22 +49,19 @@
     .toolbar {
       position: absolute; left: 0; right: 0; bottom: 10px;
       display: flex; gap: .5rem; justify-content: center;
-      padding: .4rem .6rem; background: #0b0f14cc; backdrop-filter: blur(6px);
-      border: 1px solid #334155; border-radius: 12px;
-      margin: 0 auto; width: fit-content; z-index: 30;
+      padding:.4rem .6rem; background:#0b0f14cc; backdrop-filter: blur(6px);
+      border:1px solid #334155; border-radius:12px; margin:0 auto; width:fit-content; z-index:30;
       max-width: calc(100% - 20px);
     }
     .tb {
-      background:#0f172a; color:#cbd5e1;
-      border:1px solid #334155; border-radius:10px;
-      padding:.5rem .7rem; font:13px/1 system-ui; cursor:pointer;
-      min-width:64px; text-align:center;
+      background:#0f172a; color:#cbd5e1; border:1px solid #334155; border-radius:10px;
+      padding:.5rem .7rem; font:13px/1 system-ui; cursor:pointer; min-width:64px; text-align:center;
     }
     .tb.active { background:#14213a; border-color:#3b82f6; color:#e2e8f0; }
     .tb:active { transform:translateY(1px); }
     @media (hover:hover) { .tb:hover { background:#14213a; } }
     @media (min-width: 760px) {
-      .toolbar { left: 10px; right: auto; bottom: auto; top: 10px; justify-content: flex-start; }
+      .toolbar { left:10px; right:auto; bottom:auto; top:10px; justify-content:flex-start; }
     }
   </style>
 {% endblock %}
@@ -82,10 +81,6 @@
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 
-    // Your GitHub *blob* URL (we convert it to raw automatically)
-    const GH_BLOB_URL = "https://github.com/ZanderDent/445/blob/main/static/our_design.stl";
-
-    // View tweaks
     const TWEAK = {
       zUpToYUp: true,
       rotationDeg: { x: 0, y: 0, z: 100 },
@@ -99,6 +94,8 @@
 
     const container = document.getElementById('viewer');
     const statusEl  = document.getElementById('status');
+    const fileInput = document.getElementById('fileInput');
+    const btnOpen   = document.getElementById('btnOpen');
 
     const btnPivot = document.getElementById('btnPivot');
     const btnPan   = document.getElementById('btnPan');
@@ -171,7 +168,7 @@
       controls.update();
     }
 
-    const loader = new STLLoader();
+    const loader   = new STLLoader();
     const material = new THREE.MeshStandardMaterial({
       color: 0xb9c6d3, metalness: 0.05, roughness: 0.7, side: THREE.DoubleSide
     });
@@ -205,90 +202,69 @@
       mesh.position.add(new THREE.Vector3(TWEAK.offset.x, TWEAK.offset.y, TWEAK.offset.z));
     }
 
-    // Turn a GitHub "blob" URL into a "raw" URL
-    function toRawFromBlob(blobUrl){
-      // https://github.com/owner/repo/blob/branch/path -> https://raw.githubusercontent.com/owner/repo/branch/path
-      const m = blobUrl.match(/^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+)$/);
-      if (m){
-        const [, owner, repo, branch, path] = m;
-        return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
-      }
-      return blobUrl; // already raw or something else
-    }
+    // ---- Local file (user-chosen) ----
+    btnOpen.addEventListener('click', () => fileInput.click());
 
-    // Stream the STL in chunks with an optional throttle to be gentle
-    async function streamFetchToArrayBuffer(url, { throttleMs = 40 } = {}){
-      const res = await fetch(url, { cache: 'no-store', mode: 'cors' });
-      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-      const contentLength = Number(res.headers.get('content-length') || 0);
-      const reader = res.body.getReader();
-      const chunks = [];
-      let received = 0;
-
-      statusEl.textContent = 'Fetching…';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        received += value.byteLength;
-
-        if (contentLength) {
-          const pct = ((received / contentLength) * 100).toFixed(1);
-          statusEl.textContent = `Downloading… ${pct}%`;
-        } else {
-          statusEl.textContent = `Downloading… ${Math.round(received/1024/1024)} MB`;
-        }
-
-        if (throttleMs > 0) {
-          await new Promise(r => setTimeout(r, throttleMs));
-        }
-      }
-
-      let total = received;
-      const out = new Uint8Array(total);
-      let offset = 0;
-      for (const c of chunks) {
-        out.set(c, offset);
-        offset += c.byteLength;
-      }
-      return out.buffer;
-    }
-
-    async function loadSTLFromArrayBuffer(buf){
-      // guard against HTML (e.g., wrong URL)
-      const head = new Uint8Array(buf.slice(0, 256));
-      const headStr = new TextDecoder('ascii', { fatal: false }).decode(head).toLowerCase();
-      if (headStr.includes('<html') || headStr.includes('<!doctype')) {
-        throw new Error('Got HTML instead of STL. Use a RAW URL (this page converts your blob URL automatically).');
-      }
-
-      statusEl.textContent = 'Parsing…';
-      const geometry = loader.parse(buf);
-      geometry.computeVertexNormals();
-      geometry.center();
-
-      const mesh = new THREE.Mesh(geometry, material);
-      normalizeAndTweak(mesh);
-      clearAndAdd(mesh);
-    }
-
-    async function loadGithubBlob(blobUrl){
+      statusEl.textContent = `Reading “${file.name}”…`;
       try {
-        const rawUrl = toRawFromBlob(blobUrl);
-        const buf = await streamFetchToArrayBuffer(rawUrl, { throttleMs: 40 }); // adjust if needed
-        await loadSTLFromArrayBuffer(buf);
+        const buf = await readFileAsArrayBufferWithProgress(file, pct => {
+          statusEl.textContent = `Reading… ${pct.toFixed(1)}%`;
+        });
+
+        statusEl.textContent = 'Parsing…';
+        const geometry = loader.parse(buf);
+        geometry.computeVertexNormals();
+        geometry.center();
+
+        const mesh = new THREE.Mesh(geometry, material);
+        normalizeAndTweak(mesh);
+        clearAndAdd(mesh);
       } catch (err) {
         console.error(err);
-        statusEl.textContent = `Error loading STL — ${String(err.message || err)}`;
+        statusEl.textContent = `Failed to load — ${String(err.message || err)}`;
+      } finally {
+        fileInput.value = "";
       }
+    });
+
+    async function readFileAsArrayBufferWithProgress(file, onProgress){
+      if (file.stream && file.stream instanceof Function) {
+        const reader = file.stream().getReader();
+        const chunks = [];
+        let received = 0;
+        const total = file.size || 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.byteLength;
+          if (total && onProgress) onProgress((received / total) * 100);
+          await new Promise(r => setTimeout(r, 10));
+        }
+
+        const out = new Uint8Array(received);
+        let off = 0;
+        for (const c of chunks) { out.set(c, off); off += c.byteLength; }
+        return out.buffer;
+      }
+
+      const reader = new FileReader();
+      return new Promise((resolve, reject) => {
+        reader.onerror = () => reject(reader.error);
+        reader.onprogress = (e) => {
+          if (e.lengthComputable && onProgress) onProgress((e.loaded / e.total) * 100);
+        };
+        reader.onload = () => resolve(reader.result);
+        reader.readAsArrayBuffer(file);
+      });
     }
 
-    // Kick off load from your provided URL
-    loadGithubBlob(GH_BLOB_URL);
-
-    // ---- Controls modes ----
+    // ---- UI modes ----
     const MOUSE = THREE.MOUSE;
     function setActive(btn){ [btnPivot,btnPan,btnZoom,btnReset,btnGrid].forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
     function setMode(mode){
