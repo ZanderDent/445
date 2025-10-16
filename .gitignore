@@ -1,10 +1,13 @@
 venv/static/cache/
-static/our_design.stl
 .env
 /venv/
 venv/
 static/cache/
-static/our_design.stl
+.env
+__pycache__/
+*.pyc
+venv/
+static/cache/
 .env
 __pycache__/
 *.pyc
