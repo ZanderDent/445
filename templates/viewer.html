@@ -123,7 +123,7 @@
     controls.dampingFactor = 0.06;
     controls.screenSpacePanning = true;
     controls.zoomToCursor = true;
-    controls.zoomSpeed = 0.15;
+    controls.zoomSpeed = 0.5;
     controls.panSpeed  = 0.9;
     controls.rotateSpeed = 0.9;
 
@@ -180,42 +180,49 @@
 
     let model = null; // Group
 
-    loader.load(
-      MODEL_URL,
-      (geometry)=>{
-        // Normalize geometry around origin (this truly centers it)
+    // Replace the STLLoader.load(...) block with:
+    (async () => {
+      try {
+        statusEl.textContent = 'Fetching…';
+        const res = await fetch(MODEL_URL, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+
+        const buf = await res.arrayBuffer();
+
+        // Guard against accidental HTML from Drive
+        const head = new Uint8Array(buf.slice(0, 256));
+        const headStr = new TextDecoder('ascii').decode(head).toLowerCase();
+        if (headStr.includes('<html') || headStr.includes('<!doctype')) {
+          throw new Error('Got HTML (is Google Drive file shared "Anyone with link"?).');
+        }
+
+        statusEl.textContent = 'Parsing…';
+        const geometry = new STLLoader().parse(buf);
+
         geometry.computeVertexNormals();
-        geometry.center(); // << puts the mesh's local origin at the bbox center
+        geometry.center();
 
         const mesh = new THREE.Mesh(geometry, material);
-
-        // Apply hardcoded tweaks in this order: scale → up-axis fix → extra rotation → offset
         if (TWEAK.scale !== 1) mesh.scale.setScalar(TWEAK.scale);
         if (TWEAK.zUpToYUp)    mesh.rotation.x += -Math.PI / 2;
-
         mesh.rotation.x += THREE.MathUtils.degToRad(TWEAK.rotationDeg.x);
         mesh.rotation.y += THREE.MathUtils.degToRad(TWEAK.rotationDeg.y);
         mesh.rotation.z += THREE.MathUtils.degToRad(TWEAK.rotationDeg.z);
-
         mesh.position.add(new THREE.Vector3(TWEAK.offset.x, TWEAK.offset.y, TWEAK.offset.z));
 
         model = new THREE.Group();
         model.add(mesh);
         scene.add(model);
 
-        // Fit AFTER transforms so it appears dead-center
         fitTo(model);
         resize();
         statusEl.textContent = 'Loaded ✓';
-      },
-      (xhr)=>{
-        if (xhr.total) statusEl.textContent = `Loading… ${(xhr.loaded/xhr.total*100).toFixed(0)}%`;
-      },
-      (err)=>{
-        console.error(err);
-        statusEl.textContent = 'Error loading STL';
+      } catch (err) {
+        console.error('STL fetch/parse error:', err);
+        statusEl.textContent = `Error loading STL — ${String(err.message || err)}`;
       }
-    );
+    })();
+
 
     // ---- Modes (exclusive) ----
     const MOUSE = THREE.MOUSE;
