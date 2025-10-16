@@ -8,13 +8,28 @@
          style="position:absolute;inset:0;width:100%;height:100%;
                 touch-action:none;overscroll-behavior:contain;-webkit-user-select:none;user-select:none;"></div>
 
+    <!-- Status pill -->
     <div id="status"
          style="position:absolute;top:10px;right:10px;background:#0f172a;opacity:.92;
                 padding:.35rem .6rem;border-radius:999px;border:1px solid #334155;
-                font:12px/1.2 system-ui;max-width:52ch;z-index:20">
+                font:12px/1.2 system-ui;max-width:52ch;z-index:32">
       Booting…
     </div>
 
+    <!-- Quick loaders -->
+    <div class="quickload"
+         style="position:absolute;left:10px;right:10px;bottom:64px;display:flex;gap:.5rem;z-index:31;align-items:center;justify-content:center;flex-wrap:wrap">
+      <input id="urlInput" type="text"
+             placeholder="https://raw.githubusercontent.com/owner/repo/branch/path/to/model.stl  — or  owner/repo@main:path/to/model.stl"
+             style="flex:1;min-width:220px;max-width:820px;background:#0b1220;color:#cbd5e1;border:1px solid #334155;border-radius:10px;padding:.45rem .6rem;font:13px system-ui;">
+      <button id="btnLoadUrl" class="tb" style="white-space:nowrap;">Load URL</button>
+      <label class="tb" style="cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;margin:0">
+        <input id="fileInput" type="file" accept=".stl,.STL" style="display:none;">
+        Open File…
+      </label>
+    </div>
+
+    <!-- Toolbar -->
     <div class="toolbar" id="toolbar">
       <button id="btnPivot" class="tb active" aria-pressed="true">Pivot</button>
       <button id="btnPan"   class="tb">Pan</button>
@@ -23,6 +38,7 @@
       <button id="btnGrid"  class="tb">Grid</button>
     </div>
   </div>
+
   <p style="margin-top:.75rem;color:#64748b;margin-bottom:0">
     Mode is <em>exclusive</em>. Drag with finger/trackpad/mouse to perform the selected action.
   </p>
@@ -69,35 +85,17 @@
 
     // ------------ HARD-CODED VIEW TWEAKS (edit these) ------------
     const TWEAK = {
-      // Your CAD is Z-up → make it Y-up for three.js
-      zUpToYUp: true,                   // rotate X by -90°
-
-      // Make the long span horizontal: rotate ~90° around Z
-      // (If it’s the wrong way, flip the sign to -90)
-      rotationDeg: { x: 0, y: 0, z: 100 },
-
-      // After centering, nudge if needed (usually keep 0s)
-      offset: { x: 0, y: 0, z: 0 },
-
-      // Auto-normalize the model so its largest dimension = N scene units.
-      // This guarantees it fills the view nicely regardless of STL units.
-      normalizeTo: 50,   // try 50 (or 100). Set to 0 to disable.
-
-      // If you additionally want a fixed multiplier after normalization
-      scale: 1,          // keep 1 unless you want a little extra
-
-      // Where to aim the camera relative to the model center (optional)
-      cameraBias: { x: 0, y: 0, z: 0 },
-
-      // Shift the orbit pivot relative to the model center (optional)
-      pivotOffset: { x: 500, y: -200, z: -500 },
-
-      // How tight the initial fit is (smaller = closer)
-      padding: 1.25
+      zUpToYUp: true,                         // rotate X by -90° if your CAD is Z-up
+      rotationDeg: { x: 0, y: 0, z: 100 },    // extra rotation after centering
+      offset: { x: 0, y: 0, z: 0 },           // translation after centering
+      normalizeTo: 80,                         // scale so largest dimension == N units (0 = off)
+      scale: 1,                                // extra scalar applied after normalizeTo
+      cameraBias: { x: 0, y: 0, z: 0 },       // camera nudge after fit
+      pivotOffset: { x: 50, y: -10, z: 0 },      // shift orbit target
+      padding: 1.35                            // bigger = further away
     };
 
     // -------------------------------------------------------------
-
     const container = document.getElementById('viewer');
     const statusEl  = document.getElementById('status');
 
@@ -106,6 +104,10 @@
     const btnZoom  = document.getElementById('btnZoom');
     const btnReset = document.getElementById('btnReset');
     const btnGrid  = document.getElementById('btnGrid');
+
+    const urlInput   = document.getElementById('urlInput');
+    const btnLoadUrl = document.getElementById('btnLoadUrl');
+    const fileInput  = document.getElementById('fileInput');
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0b0f14);
@@ -172,57 +174,108 @@
       controls.update();
     }
 
-    const MODEL_URL = "{{ model_url|default('/static/our_design.stl')|safe }}";
     const loader = new STLLoader();
     const material = new THREE.MeshStandardMaterial({
       color: 0xb9c6d3, metalness: 0.05, roughness: 0.7, side: THREE.DoubleSide
     });
 
-    let model = null; // Group
+    const group = new THREE.Group();
+    scene.add(group);
 
-    // Replace the STLLoader.load(...) block with:
-    (async () => {
+    function clearAndAdd(obj){
+      while (group.children.length) group.remove(group.children[0]);
+      group.add(obj);
+      fitTo(group);
+      resize();
+      statusEl.textContent = 'Loaded ✓';
+    }
+
+    function normalizeAndTweak(mesh){
+      // normalize size if requested
+      if (TWEAK.normalizeTo && TWEAK.normalizeTo > 0) {
+        const box = new THREE.Box3().setFromObject(mesh);
+        const size = box.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z) || 1;
+        const s = TWEAK.normalizeTo / maxDim;
+        mesh.scale.multiplyScalar(s);
+      }
+      if (TWEAK.scale !== 1) mesh.scale.multiplyScalar(TWEAK.scale);
+      if (TWEAK.zUpToYUp)    mesh.rotation.x += -Math.PI / 2;
+
+      mesh.rotation.x += THREE.MathUtils.degToRad(TWEAK.rotationDeg.x);
+      mesh.rotation.y += THREE.MathUtils.degToRad(TWEAK.rotationDeg.y);
+      mesh.rotation.z += THREE.MathUtils.degToRad(TWEAK.rotationDeg.z);
+
+      mesh.position.add(new THREE.Vector3(TWEAK.offset.x, TWEAK.offset.y, TWEAK.offset.z));
+    }
+
+    async function loadSTLFromArrayBuffer(buf){
+      // guard against accidental HTML responses
+      const head = new Uint8Array(buf.slice(0, 256));
+      const headStr = new TextDecoder('ascii', { fatal: false }).decode(head).toLowerCase();
+      if (headStr.includes('<html') || headStr.includes('<!doctype')) {
+        throw new Error('Got HTML (check URL/file and sharing settings).');
+      }
+
+      statusEl.textContent = 'Parsing…';
+      const geometry = loader.parse(buf);
+      geometry.computeVertexNormals();
+      geometry.center();
+
+      const mesh = new THREE.Mesh(geometry, material);
+      normalizeAndTweak(mesh);
+      clearAndAdd(mesh);
+    }
+
+    async function loadSTL(url){
       try {
         statusEl.textContent = 'Fetching…';
-        const res = await fetch(MODEL_URL, { cache: 'no-store' });
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-
         const buf = await res.arrayBuffer();
-
-        // Guard against accidental HTML from Drive
-        const head = new Uint8Array(buf.slice(0, 256));
-        const headStr = new TextDecoder('ascii').decode(head).toLowerCase();
-        if (headStr.includes('<html') || headStr.includes('<!doctype')) {
-          throw new Error('Got HTML (is Google Drive file shared "Anyone with link"?).');
-        }
-
-        statusEl.textContent = 'Parsing…';
-        const geometry = new STLLoader().parse(buf);
-
-        geometry.computeVertexNormals();
-        geometry.center();
-
-        const mesh = new THREE.Mesh(geometry, material);
-        if (TWEAK.scale !== 1) mesh.scale.setScalar(TWEAK.scale);
-        if (TWEAK.zUpToYUp)    mesh.rotation.x += -Math.PI / 2;
-        mesh.rotation.x += THREE.MathUtils.degToRad(TWEAK.rotationDeg.x);
-        mesh.rotation.y += THREE.MathUtils.degToRad(TWEAK.rotationDeg.y);
-        mesh.rotation.z += THREE.MathUtils.degToRad(TWEAK.rotationDeg.z);
-        mesh.position.add(new THREE.Vector3(TWEAK.offset.x, TWEAK.offset.y, TWEAK.offset.z));
-
-        model = new THREE.Group();
-        model.add(mesh);
-        scene.add(model);
-
-        fitTo(model);
-        resize();
-        statusEl.textContent = 'Loaded ✓';
+        await loadSTLFromArrayBuffer(buf);
       } catch (err) {
-        console.error('STL fetch/parse error:', err);
+        console.error('STL load error:', err);
         statusEl.textContent = `Error loading STL — ${String(err.message || err)}`;
       }
-    })();
+    }
 
+    function toRawGithubURL(input){
+      if (!input) return '';
+      if (/^https?:\/\//i.test(input)) return input.trim();
+      // shorthand: owner/repo@branch:path/to/file.stl
+      const m = input.match(/^([^\/]+)\/([^@]+)@([^:]+):(.+)$/);
+      if (m){
+        const [, owner, repo, branch, path] = m;
+        return `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}`;
+      }
+      return input.trim();
+    }
+
+    // Quick loaders wiring
+    btnLoadUrl.addEventListener('click', ()=>{
+      const raw = toRawGithubURL(urlInput.value);
+      if (!raw) { statusEl.textContent = 'Enter a URL'; return; }
+      loadSTL(raw);
+    });
+    urlInput.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter') btnLoadUrl.click();
+    });
+    fileInput.addEventListener('change', async ()=>{
+      const f = fileInput.files?.[0];
+      if (!f) return;
+      statusEl.textContent = 'Reading file…';
+      const buf = await f.arrayBuffer();
+      await loadSTLFromArrayBuffer(buf);
+    });
+
+    // Initial load from Flask (optional)
+    const MODEL_URL = "{{ model_url|default('')|safe }}";
+    if (MODEL_URL) {
+      loadSTL(MODEL_URL);
+    } else {
+      statusEl.textContent = 'Paste a GitHub raw URL or open a local STL.';
+    }
 
     // ---- Modes (exclusive) ----
     const MOUSE = THREE.MOUSE;
@@ -249,23 +302,15 @@
     btnPan.onclick  =()=>setMode('pan');
     btnZoom.onclick =()=>setMode('zoom');
 
-    // Reset = re-apply hardcoded tweaks + re-fit (guaranteed center)
+    // Reset view (re-apply tweaks & fit)
     btnReset.onclick = ()=>{
-      if (!model) return;
-      // undo transforms first
-      const mesh = model.children[0];
+      if (!group.children[0]) return;
+      const mesh = group.children[0];
       mesh.position.set(0,0,0);
       mesh.rotation.set(0,0,0);
       mesh.scale.set(1,1,1);
-
-      if (TWEAK.scale !== 1) mesh.scale.setScalar(TWEAK.scale);
-      if (TWEAK.zUpToYUp)    mesh.rotation.x += -Math.PI / 2;
-      mesh.rotation.x += THREE.MathUtils.degToRad(TWEAK.rotationDeg.x);
-      mesh.rotation.y += THREE.MathUtils.degToRad(TWEAK.rotationDeg.y);
-      mesh.rotation.z += THREE.MathUtils.degToRad(TWEAK.rotationDeg.z);
-      mesh.position.add(new THREE.Vector3(TWEAK.offset.x, TWEAK.offset.y, TWEAK.offset.z));
-
-      fitTo(model);
+      normalizeAndTweak(mesh);
+      fitTo(group);
       setMode('pivot');
       statusEl.textContent = 'View reset (centered & fit)';
     };
