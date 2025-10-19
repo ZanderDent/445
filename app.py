@@ -118,7 +118,9 @@ def viewer():
 def wdm():
     return render_template("wdm.html")
 
-
+@app.route("/files")
+def files():
+    return render_template("drive.html")
 
 @app.route("/api/cpm", methods=["POST"])
 def api_cpm():
