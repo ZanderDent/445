@@ -3,342 +3,259 @@
 
 {% block extra_head %}
 <style>
+  :root{
+    --chip-bg:#0b1220; --chip-line:var(--panel-line,#243244); --chip-text:#e5e7eb;
+  }
+
+  .home{max-width:1200px;margin:0 auto;padding:0 .75rem}
+
   /* ------------ HERO ------------ */
   .home-hero{
-    position:relative;
-    border:var(--line);
-    border-radius:var(--radius);
-    padding:clamp(1.3rem,3vw,2.2rem);
-    margin:1.25rem 0 1.5rem;
+    position:relative;border:var(--line);border-radius:var(--radius);
+    padding:clamp(1.3rem,3vw,2.2rem);margin:1.25rem 0 1.5rem;
     background:
-      radial-gradient(1100px 420px at 0% 0%, rgba(0,209,178,.12), transparent 60%),
-      radial-gradient(800px 360px at 120% 0%, rgba(59,130,246,.10), transparent 60%),
+      radial-gradient(1000px 420px at -10% -10%, rgba(0,209,178,.12), transparent 60%),
+      radial-gradient(800px 360px at 110% -10%, rgba(59,130,246,.10), transparent 60%),
       var(--bg-soft);
-    overflow:hidden;
-    isolation:isolate;
+    overflow:hidden;isolation:isolate;
   }
   .hero-badge{
-    position:absolute; top:10px; right:10px;
-    background:linear-gradient(135deg, #22c55e, #00d1b2);
-    color:#0b0f1a; font-weight:800; letter-spacing:.3px;
-    padding:.35rem .6rem; border-radius:999px; font-size:.78rem;
-    border:1px solid rgba(255,255,255,.18);
-    box-shadow:0 6px 18px rgba(0,0,0,.25);
+    position:absolute;top:10px;right:10px;
+    background:linear-gradient(135deg,#22c55e,#00d1b2);
+    color:#0b0f1a;font-weight:800;letter-spacing:.3px;
+    padding:.35rem .6rem;border-radius:999px;font-size:.78rem;
+    border:1px solid rgba(255,255,255,.18);box-shadow:0 6px 18px rgba(0,0,0,.25);
   }
-  .home-hero h1{
-    margin:0 0 .55rem;
-    font-size:clamp(1.7rem, 3.2vw, 2.3rem);
-    letter-spacing:.2px;
-  }
-  .home-hero p{ margin:.25rem 0 0; color:var(--muted); max-width:68ch; }
-  .hero-actions{ display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1rem; }
-  .btn.glow{ position:relative; overflow:hidden; }
-  .btn.glow:after{
-    content:""; position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(120deg, transparent, rgba(255,255,255,.28), transparent);
-    transform:translateX(-100%); transition:transform .6s ease; mix-blend-mode:overlay;
-  }
-  .btn.glow:hover:after{ transform:translateX(100%); }
+  .home-hero h1{margin:0 0 .55rem;font-size:clamp(1.7rem,3.2vw,2.3rem);letter-spacing:.2px}
+  .home-hero p{margin:.25rem 0 0;color:var(--muted);max-width:68ch}
 
-  .stats{ display:grid; gap:.9rem; margin-top:1.1rem; grid-template-columns:repeat(3, minmax(0,1fr)); }
-  .stat{ background:#0b1220; border:var(--line); border-radius:12px; padding:.9rem; }
-  .stat small{ color:var(--muted); display:block; margin-bottom:.15rem; }
-  .stat .value{ font-size:1.15rem; font-weight:800; letter-spacing:.25px; }
+  /* Action chips under hero */
+  .hero-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+  .chip{
+    display:inline-flex;align-items:center;gap:.45rem;
+    background:var(--chip-bg);border:1px solid var(--chip-line);color:var(--chip-text);
+    padding:.5rem .75rem;border-radius:999px;transition:.16s transform ease, .18s filter ease;
+    text-decoration:none;font-weight:600;white-space:nowrap
+  }
+  .chip:hover{transform:translateY(-1px);filter:brightness(1.08)}
+  .chip.primary{background:linear-gradient(90deg,#00d1b2,#22c55e);color:#061318;border-color:transparent}
+  .chip.warn{background:#0b1220;border-color:#f59e0b;color:#fcd34d}
+
+  /* Quick stats */
+  .stats{display:grid;gap:.9rem;margin-top:1.1rem;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stat{background:#0b1220;border:var(--line);border-radius:12px;padding:.9rem}
+  .stat small{color:var(--muted);display:block;margin-bottom:.15rem}
+  .stat .value{font-size:1.15rem;font-weight:800;letter-spacing:.25px}
 
   /* ------------ TRACKER ------------ */
   .tracker-section{
-    background:var(--bg-soft); border:var(--line); border-radius:var(--radius);
-    padding:clamp(1rem,2.4vw,1.35rem);
-    margin:1.25rem 0 1.75rem;
+    background:var(--bg-soft);border:var(--line);border-radius:var(--radius);
+    padding:clamp(1rem,2.4vw,1.35rem);margin:1.25rem 0 1.75rem
   }
-  .tracker-header{ display:flex; align-items:center; gap:.6rem .75rem; flex-wrap:wrap; }
-  .pill{
-    display:inline-flex; align-items:center; gap:.35rem;
-    background:#0b1220; border:var(--line); border-radius:999px;
-    padding:.32rem .66rem; font-size:.86rem; color:#e5e7eb; box-shadow:0 2px 10px rgba(0,0,0,.2);
+  .tracker-header{display:flex;align-items:center;gap:.6rem .75rem;flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;gap:.35rem;background:#0b1220;border:var(--line);
+        border-radius:999px;padding:.32rem .66rem;font-size:.86rem;color:#e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+  .tracker-popband{
+    position:relative;height:48px;margin:.5rem 0 .15rem;background:#00000014;border-radius:300px;
+    display:grid;place-items:center;padding:0 .75rem
   }
-  .tracker-bar{
-    position:relative; margin:1rem 0 .35rem; height:20px; border-radius:999px;
-    background:linear-gradient(180deg, #0f1a2b, #0b1220); border:var(--line);
-    overflow:visible;
+  .tracker-popband p{margin:0;color:var(--muted);font-size:.92rem;letter-spacing:.2px;text-align:center;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;pointer-events:none;user-select:none;transition:opacity .18s,transform .18s}
+  .tracker-popband p::before{content:"☝︎ ";color:var(--accent);font-weight:700;margin-right:.15rem}
+  @supports selector(.tracker-popband:has(.poplabel)){
+    .tracker-popband:has(.poplabel) p{opacity:0;transform:translateY(-4px);visibility:hidden}
   }
-  .tracker-fill{
-    position:absolute; inset:0 auto 0 0; width:0%;
-    background:linear-gradient(90deg, #00d1b2, #22c55e);
-    border-radius:999px; box-shadow:0 0 18px rgba(0,209,178,.35);
-    transition:width .6s cubic-bezier(.22,1,.36,1);
+  .tracker-popband .poplabel{
+    position:absolute;top:6px;transform:translateX(-50%);white-space:nowrap;background:#0b1220;border:var(--line);color:#e5e7eb;
+    padding:.38rem .62rem;border-radius:10px;font-size:.86rem;line-height:1.2;box-shadow:0 6px 20px rgba(0,0,0,.28);max-width:80vw;
+    overflow:hidden;text-overflow:ellipsis;pointer-events:none
   }
-  .tracker-today{
-    position:absolute; top:50%; transform:translate(-50%, -50%);
-    width:18px; height:18px; border-radius:50%;
-    background:#f59e0b; box-shadow:0 0 0 3px rgba(245,158,11,.25);
-    border:1px solid #8a5d10;
+  .tracker-popband .poplabel::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;border:6px solid transparent;border-top-color:#0b1220}
+
+  .tracker-bar{position:relative;margin:1rem 0 .35rem;height:20px;border-radius:999px;background:linear-gradient(180deg,#0f1a2b,#0b1220);border:var(--line);overflow:visible}
+  .tracker-fill{position:absolute;inset:0 auto 0 0;width:0%;background:linear-gradient(90deg,#00d1b2,#22c55e);border-radius:999px;box-shadow:0 0 18px rgba(0,209,178,.35);transition:width .6s cubic-bezier(.22,1,.36,1)}
+  .tracker-today{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.25);border:1px solid #8a5d10}
+
+  /* markers (labels are moved to popband) */
+  .mark{position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;
+        background:#3b82f6;border:1px solid #1c3d8f;box-shadow:0 0 0 3px rgba(59,130,246,.22);cursor:pointer;outline:none;z-index:2}
+  .mark:focus-visible{box-shadow:0 0 0 3px rgba(255,255,255,.25),0 0 0 6px rgba(59,130,246,.25)}
+  .legend{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem}
+  .legend .legend-item{display:flex;align-items:center;gap:.45rem;color:#cbd5e1;font-size:.88rem;background:#0b1220;border:var(--line);border-radius:8px;padding:.35rem .6rem}
+  .legend-dot{width:10px;height:10px;border-radius:50%;background:#3b82f6;border:1px solid #1c3d8f}
+  .legend-today .legend-dot{background:#f59e0b;border-color:#8a5d10}
+  .legend-progress .legend-dot{background:linear-gradient(90deg,#00d1b2,#22c55e);border:none}
+
+  /* ------------ QUICK LINKS GRID ------------ */
+  .links{
+    background:var(--bg-soft);border:var(--line);border-radius:var(--radius);
+    padding:clamp(1rem,2.4vw,1.35rem);margin:1.25rem 0
   }
-
-    .tracker-popband{
-    position: relative;
-    height: 48px;                 /* reserved space for labels */
-    margin: .5rem 0 .15rem;       /* vertical spacing */
-    background: #00000014;
-    border-radius: 300px;
-    display: grid;                /* centers the hint text */
-    place-items: center;
-    padding: 0 .75rem;
-    }
-
-    .tracker-popband p{
-    margin: 0;
-    color: var(--muted);
-    font-size: .92rem;
-    letter-spacing: .2px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    pointer-events: none;         /* never steals taps/clicks */
-    user-select: none;
-    transition: opacity .18s ease, transform .18s ease;
-    }
-
-    .tracker-popband p::before{
-    content: "☝︎ ";
-    color: var(--accent);
-    font-weight: 700;
-    margin-right: .15rem;
-    }
-
-    /* When a real popup label is present, fade the hint away (modern browsers) */
-    @supports selector(.tracker-popband:has(.poplabel)) {
-    .tracker-popband:has(.poplabel) p{
-        opacity: 0;
-        transform: translateY(-4px);
-        visibility: hidden;
-    }
-    }
-
-    /* Existing popup label styles (unchanged) */
-    .tracker-popband .poplabel{
-    position: absolute; top: 6px; transform: translateX(-50%);
-    white-space: nowrap; background:#0b1220; border:var(--line); color:#e5e7eb;
-    padding:.38rem .62rem; border-radius:10px; font-size:.86rem; line-height:1.2;
-    box-shadow:0 6px 20px rgba(0,0,0,.28); max-width: 80vw; overflow: hidden; text-overflow: ellipsis;
-    pointer-events: none;
-    }
-    .tracker-popband .poplabel::after{
-    content:""; position:absolute; left:50%; transform:translateX(-50%);
-    bottom:-6px; border:6px solid transparent; border-top-color:#0b1220;
-    }
-
-  /* We’ll stop using inline labels on the dots (they caused overlap) */
-  .mark .label{ display:none !important; }
-
-  /* Dots + labels */
-  .mark{
-    position:absolute; top:50%; transform:translate(-50%, -50%);
-    width:14px; height:14px; border-radius:50%;
-    background:#3b82f6; border:1px solid #1c3d8f; box-shadow:0 0 0 3px rgba(59,130,246,.22);
-    cursor:pointer; outline:none; z-index:2;
+  .links h2{margin:0 0 .6rem}
+  .links-grid{
+    display:grid;gap:1rem;grid-template-columns:repeat(3,minmax(0,1fr))
   }
-  .mark:focus-visible{ box-shadow:0 0 0 3px rgba(255,255,255,.25), 0 0 0 6px rgba(59,130,246,.25); }
-  .mark .label{
-    position:absolute; left:50%; transform:translateX(-50%);
-    white-space:nowrap; background:#0b1220; border:var(--line); color:#e5e7eb;
-    padding:.36rem .6rem; border-radius:10px; font-size:.84rem; line-height:1.2;
-    box-shadow:0 6px 20px rgba(0,0,0,.28); max-width:280px; overflow:hidden; text-overflow:ellipsis;
-    opacity:0; pointer-events:none; transition:opacity .18s ease, transform .18s ease;
+  @media (max-width:980px){.links-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:640px){.links-grid{grid-template-columns:1fr}}
+  .link-card{
+    background:#0b1220;border:var(--line);border-radius:12px;padding:1rem;display:flex;flex-direction:column;gap:.45rem;
+    transition:.16s transform ease,.18s filter ease
   }
-  .mark .label::after{ content:""; position:absolute; left:50%; transform:translateX(-50%); border:6px solid transparent; }
-
-  /* Above/below lanes */
-  .mark.top    .label{ bottom: calc(100% + 10px); }
-  .mark.bottom .label{ top:    calc(100% + 10px); }
-  .mark.top    .label::after{ top:100%;    border-top-color:#0b1220; }
-  .mark.bottom .label::after{ bottom:100%; border-bottom-color:#0b1220; }
-
-  /* 3-tier staggering to reduce overlaps */
-  .mark.top.tier-1    .label{ bottom: calc(100% + 26px); }
-  .mark.top.tier-2    .label{ bottom: calc(100% + 42px); }
-  .mark.bottom.tier-1 .label{ top:    calc(100% + 26px); }
-  .mark.bottom.tier-2 .label{ top:    calc(100% + 42px); }
-
-  /* Show on hover/focus */
-  .mark:hover .label,
-  .mark:focus-visible .label{ opacity:1; pointer-events:auto; }
-
-  /* Tap-to-open (forces below) */
-  .mark.open .label{
-    opacity:1; pointer-events:auto;
-    top:auto; bottom: calc(-100% - 12px); transform:translateX(-50%);
-  }
-  .mark.open .label::after{
-    top:auto; bottom:100%;
-    border-top-color:transparent; border-bottom-color:#0b1220;
-  }
-
-  /* Upcoming milestone animation */
-  .mark.upcoming{
-    background:#22c55e; border-color:#15803d; box-shadow:0 0 0 5px rgba(34,197,94,.28);
-    animation:pulse 1.8s ease-in-out infinite;
-  }
-  @keyframes pulse{
-    0%{ box-shadow:0 0 0 5px rgba(34,197,94,.28); }
-    50%{ box-shadow:0 0 0 10px rgba(34,197,94,.10); }
-    100%{ box-shadow:0 0 0 5px rgba(34,197,94,.28); }
-  }
-
-  .legend{ display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.8rem; }
-  .legend .legend-item{
-    display:flex; align-items:center; gap:.45rem; color:#cbd5e1; font-size:.88rem;
-    background:#0b1220; border:var(--line); border-radius:8px; padding:.35rem .6rem;
-  }
-  .legend-dot{ width:10px; height:10px; border-radius:50%; background:#3b82f6; border:1px solid #1c3d8f; }
-  .legend-today .legend-dot{ background:#f59e0b; border-color:#8a5d10; }
-  .legend-progress .legend-dot{ background:linear-gradient(90deg, #00d1b2, #22c55e); border:none; }
+  .link-card:hover{transform:translateY(-2px);filter:brightness(1.06)}
+  .link-card h3{margin:.1rem 0 .2rem}
+  .link-card p{margin:0;color:var(--muted)}
+  .link-card .cta-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.55rem}
+  .mini{font-size:.9rem;padding:.45rem .65rem;border-radius:10px;border:1px solid #2a3a50;background:#0f172a;color:#cbd5e1;text-decoration:none}
+  .mini.primary{background:linear-gradient(90deg,#00d1b2,#22c55e);color:#061318;border-color:transparent;font-weight:800}
 
   /* ------------ TEAM ------------ */
   .team{
-    background:var(--bg-soft);
-    border:var(--line);
-    border-radius:var(--radius);
-    padding:clamp(1rem,2.4vw,1.35rem);
-    margin:1.75rem 0 1.25rem;
+    background:var(--bg-soft);border:var(--line);border-radius:var(--radius);
+    padding:clamp(1rem,2.4vw,1.35rem);margin:1.75rem 0 1.25rem
   }
-  .team h2{ margin:0 0 .75rem; }
-  .team-figure{ margin:0 0 1rem; border-radius:12px; overflow:hidden; border:var(--line); background:#0b1220; }
-  .team-figure img{ display:block; width:100%; height:auto; }
-  .team-figure figcaption{ padding:.6rem .8rem; font-size:.92rem; color:var(--muted); border-top:var(--line); }
-
-  .team-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
-    gap:clamp(.85rem,2.2vw,1.15rem);
-    margin-top:.25rem;
-  }
-  .member{
-    display:grid; grid-template-columns:72px 1fr; gap:.9rem; align-items:center;
-    background:#0b1220; border:var(--line); border-radius:12px; padding:.9rem;
-    transition:transform .12s ease, box-shadow .2s ease, border-color .2s ease;
-  }
-  .member:hover{ transform:translateY(-2px); box-shadow:var(--shadow); border-color:#2b3b57; }
-  .avatar{
-    width:72px; height:72px; border-radius:50%;
-    display:grid; place-items:center; font-weight:800; font-size:20px; letter-spacing:.3px; color:#061318;
-    background:
-      radial-gradient(85% 85% at 30% 25%, rgba(255,255,255,.10), transparent 60%),
-      linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
-    border:var(--line);
-    user-select:none;
-  }
-  .member h3{ margin:0; font-size:1.06rem; }
-  .member p{ margin:.22rem 0 0; color:var(--muted); font-size:.92rem; }
-
-  /* ------------ CTA CARDS ------------ */
-  .cta-grid{
-    display:grid; gap:1.1rem; margin-top:1.1rem;
-    grid-template-columns:repeat(3, minmax(0,1fr));
-  }
-  @media (max-width:980px){ .cta-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
-  @media (max-width:700px){ .cta-grid{ grid-template-columns:1fr; } }
-  .cta{
-    position:relative; overflow:hidden;
-    background:var(--bg-soft); border:var(--line); border-radius:var(--radius);
-    padding:1rem;
-  }
-  .cta h3{ margin:.1rem 0 .45rem; }
-  .cta p{ margin:.25rem 0 .85rem; color:var(--muted); }
+  .team h2{margin:0 0 .75rem}
+  .team-figure{margin:0 0 1rem;border-radius:12px;overflow:hidden;border:var(--line);background:#0b1220}
+  .team-figure img{display:block;width:100%;height:auto}
+  .team-figure figcaption{padding:.6rem .8rem;font-size:.92rem;color:var(--muted);border-top:var(--line)}
+  .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(.85rem,2.2vw,1.15rem);margin-top:.25rem}
+  .member{display:grid;grid-template-columns:72px 1fr;gap:.9rem;align-items:center;background:#0b1220;border:var(--line);border-radius:12px;padding:.9rem;
+          transition:transform .12s ease,box-shadow .2s ease,border-color .2s ease}
+  .member:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:#2b3b57}
+  .avatar{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:20px;letter-spacing:.3px;color:#061318;
+          background:radial-gradient(85% 85% at 30% 25%,rgba(255,255,255,.10),transparent 60%),linear-gradient(135deg,#0ea5e9 0%,#22c55e 100%);
+          border:var(--line);user-select:none}
+  .member h3{margin:0;font-size:1.06rem}
+  .member p{margin:.22rem 0 0;color:var(--muted);font-size:.92rem}
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="home-hero">
-  <span class="hero-badge">Capstone 2025</span>
-  <h1>Tsolum River Bridge — Team 7</h1>
-  <p>
-    We’re a UBC CIVL 445/446 group [The Bridgeworks Collective] advancing concept and detailed design options for a multi-use crossing
-    to reconnect the One Spot Trail over the Tsolum River (Comox Valley). Work is supported by ISL.
-  </p>
+<section class="home">
+  <!-- HERO -->
+  <section class="home-hero">
+    <span class="hero-badge">Capstone 2025</span>
+    <h1>Tsolum River Bridge — Team 7</h1>
+    <p>
+      We’re a UBC CIVL 445/446 group (The Bridgeworks Collective) advancing concept and detailed design for a multi-use
+      crossing reconnecting the One Spot Trail over the Tsolum River. Work supported by ISL.
+    </p>
 
-  <div class="hero-actions">
-    <a class="btn primary glow" href="/">Open Timeline</a>
-    <a class="btn secondary glow" href="/survey">Take the Concept Survey</a>
-    <a class="btn glow" style="border-color:#22c55e;color:#22c55e" href="/budget">View Budget Breakdown</a>
-  </div>
-
-  <div class="stats" aria-label="Project quick facts">
-    <div class="stat"><small>Start</small><div id="stat-start" class="value">—</div></div>
-    <div class="stat"><small>Target Finish</small><div id="stat-end" class="value">—</div></div>
-    <div class="stat"><small>Overall Progress</small><div id="stat-days" class="value">—</div></div>
-  </div>
-</section>
-
-<!-- PROJECT TRACKER -->
-<section class="tracker-section" aria-label="Project tracker">
-  <div class="tracker-header">
-    <h2 style="margin:0">Project Tracker</h2>
-    <span id="tracker-percent" class="pill">0% complete</span>
-    <span id="tracker-range" class="pill">— → —</span>
-  </div>
-
-  <div id="tracker-popband" class="tracker-popband" aria-live="polite" aria-label="Milestone details">
-    <p>Hover over milestones below to see them here!</p>
-  </div>
-  <div id="tracker" class="tracker-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Overall project progress">
-    <div id="tracker-fill" class="tracker-fill"></div>
-    <!-- Today pin -->
-    <div id="tracker-today" class="tracker-today" title="Today"></div>
-    <!-- Milestones injected here -->
-  </div>
-
-  <div class="legend" aria-hidden="true">
-    <span class="legend-item legend-progress"><span class="legend-dot"></span> Progress</span>
-    <span class="legend-item"><span class="legend-dot"></span> Milestone</span>
-    <span class="legend-item legend-today"><span class="legend-dot"></span> Today</span>
-  </div>
-</section>
-
-<section class="team">
-  <h2>Meet the Team</h2>
-
-  <figure class="team-figure">
-    <img src="{{ url_for('static', filename='team.jpg') }}" alt="Team photo" loading="lazy">
-    <figcaption>
-      Left → right: Luke Winnig, Ahnaf Chowdhury, Diego Boilley, Felix Stewart, Zander Dent, Gabriel Comla.
-    </figcaption>
-  </figure>
-
-  <div class="team-grid" aria-label="Team roster">
-    <article class="member"><div class="avatar" aria-hidden="true">LW</div><div><h3>Luke Winnig</h3><p>Capstone Team Member</p></div></article>
-    <article class="member"><div class="avatar" aria-hidden="true">AC</div><div><h3>Ahnaf Chowdhury</h3><p>Capstone Team Member</p></div></article>
-    <article class="member"><div class="avatar" aria-hidden="true">DB</div><div><h3>Diego Boilley</h3><p>Capstone Team Member</p></div></article>
-    <article class="member"><div class="avatar" aria-hidden="true">FS</div><div><h3>Felix Stewart</h3><p>Capstone Team Member</p></div></article>
-    <article class="member"><div class="avatar" aria-hidden="true">ZD</div><div><h3>Zander Dent</h3><p>Capstone Team Member</p></div></article>
-    <article class="member"><div class="avatar" aria-hidden="true">GC</div><div><h3>Gabriel Comla</h3><p>Capstone Team Member</p></div></article>
-  </div>
-
-  <div class="cta-grid">
-    <div class="cta">
-      <h3>Interactive Schedule</h3>
-      <p>Browse all phases, deliverables, and milestones on the timeline.</p>
-      <a class="btn primary glow" href="/">Open Timeline</a>
+    <!-- Action chips -->
+    <div class="hero-actions" aria-label="Primary quick actions">
+      <a class="chip primary" href="/files">Site Visit</a>
+      <a class="chip" href="/schedule">Schedule</a>
+      <a class="chip" href="/wdm">WDM</a>
+      <a class="chip" href="/budget">Budget</a>
+      <a class="chip" href="/viewer">Design Viewer</a>
     </div>
-    <div class="cta">
-      <h3>Have a Say</h3>
-      <p>Vote for the bridge concept that best fits the site and community.</p>
-      <a class="btn secondary glow" href="/survey">Take the Survey</a>
+
+    <!-- Stats -->
+    <div class="stats" aria-label="Project quick facts">
+      <div class="stat"><small>Start</small><div id="stat-start" class="value">—</div></div>
+      <div class="stat"><small>Target Finish</small><div id="stat-end" class="value">—</div></div>
+      <div class="stat"><small>Overall Progress</small><div id="stat-days" class="value">—</div></div>
     </div>
-    <div class="cta">
-      <h3>Budget Overview</h3>
-      <p>See the fee breakdown for our selected cable-stayed option.</p>
-      <a class="btn glow" style="border-color:#22c55e;color:#22c55e" href="/budget">View Budget</a>
+  </section>
+
+  <!-- PROJECT TRACKER -->
+  <section class="tracker-section" aria-label="Project tracker">
+    <div class="tracker-header">
+      <h2 style="margin:0">Project Tracker</h2>
+      <span id="tracker-percent" class="pill">0% complete</span>
+      <span id="tracker-range" class="pill">— → —</span>
     </div>
-  </div>
+
+    <div id="tracker-popband" class="tracker-popband" aria-live="polite" aria-label="Milestone details">
+      <p>Hover or tap milestones below to see them here.</p>
+    </div>
+
+    <div id="tracker" class="tracker-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Overall project progress">
+      <div id="tracker-fill" class="tracker-fill"></div>
+      <div id="tracker-today" class="tracker-today" title="Today"></div>
+      <!-- Milestones injected here -->
+    </div>
+
+    <div class="legend" aria-hidden="true">
+      <span class="legend-item legend-progress"><span class="legend-dot"></span> Progress</span>
+      <span class="legend-item"><span class="legend-dot"></span> Milestone</span>
+      <span class="legend-item legend-today"><span class="legend-dot"></span> Today</span>
+    </div>
+  </section>
+
+  <!-- QUICK LINKS GRID -->
+  <section class="links" aria-label="Quick links">
+    <h2>Explore</h2>
+    <div class="links-grid">
+      <article class="link-card">
+        <h3>Interactive Schedule</h3>
+        <p>Browse phases, deliverables, and milestones on the live timeline.</p>
+        <div class="cta-row">
+          <a class="mini primary" href="/">Open Timeline</a>
+          <a class="mini" href="/schedule">Schedule Page</a>
+        </div>
+      </article>
+
+      <article class="link-card">
+        <h3>Decision Helper (WDM)</h3>
+        <p>Set your priorities and see which concept wins for you.</p>
+        <div class="cta-row">
+          <a class="mini primary" href="/wdm">Launch WDM</a>
+          <a class="mini" href="/survey">Vote in Survey</a>
+        </div>
+      </article>
+
+      <article class="link-card">
+        <h3>Site Visit</h3>
+        <p>Photos, notes, and constraints from field reconnaissance.</p>
+        <div class="cta-row">
+          <a class="mini primary" href="/files">View Site Photos</a>
+          <a class="mini" href="https://drive.google.com/drive/folders/13-EPpJMhM_D1-M6jrzEHf1Z02P_vDksP" target="_blank" rel="noopener">Open in Drive</a>
+        </div>
+      </article>
+
+      <article class="link-card">
+        <h3>Budget Overview</h3>
+        <p>Cable-stayed option fees, disbursements, and totals.</p>
+        <div class="cta-row">
+          <a class="mini primary" href="/budget">View Budget</a>
+        </div>
+      </article>
+
+      <article class="link-card">
+        <h3>Model Viewer</h3>
+        <p>Spin, zoom, and inspect the latest 3D concept model.</p>
+        <div class="cta-row">
+          <a class="mini primary" href="/viewer">Open Viewer</a>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section class="team">
+    <h2>Meet the Team</h2>
+    <figure class="team-figure">
+      <img src="{{ url_for('static', filename='team.jpg') }}" alt="Team photo" loading="lazy">
+      <figcaption>Left → right: Luke Winnig, Ahnaf Chowdhury, Diego Boilley, Felix Stewart, Zander Dent, Gabriel Comla.</figcaption>
+    </figure>
+
+    <div class="team-grid" aria-label="Team roster">
+      <article class="member"><div class="avatar" aria-hidden="true">LW</div><div><h3>Luke Winnig</h3><p>Capstone Team Member</p></div></article>
+      <article class="member"><div class="avatar" aria-hidden="true">AC</div><div><h3>Ahnaf Chowdhury</h3><p>Capstone Team Member</p></div></article>
+      <article class="member"><div class="avatar" aria-hidden="true">DB</div><div><h3>Diego Boilley</h3><p>Capstone Team Member</p></div></article>
+      <article class="member"><div class="avatar" aria-hidden="true">FS</div><div><h3>Felix Stewart</h3><p>Capstone Team Member</p></div></article>
+      <article class="member"><div class="avatar" aria-hidden="true">ZD</div><div><h3>Zander Dent</h3><p>Capstone Team Member</p></div></article>
+      <article class="member"><div class="avatar" aria-hidden="true">GC</div><div><h3>Gabriel Comla</h3><p>Capstone Team Member</p></div></article>
+    </div>
+  </section>
 </section>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
   (async () => {
-    // --- Load schedule.json from common locations
+    // Load schedule.json
     async function loadSchedule(){
       const urls=['/api/schedule.json','/schedule.json','{{ url_for("static", filename="schedule.json") }}'];
       for (const u of urls){ try{ const r=await fetch(u,{cache:'no-store'}); if(r.ok){ return r.json(); } }catch(e){} }
@@ -346,11 +263,11 @@
     }
     const data = await loadSchedule();
 
-    // --- Helpers
+    // Helpers
     const clamp = (v,min,max)=>Math.min(max,Math.max(min,v));
     const fmtISO = d => new Date(d).toISOString().slice(0,10);
 
-    // --- Fill hero stats
+    // Hero stats
     const s = data?.start ? new Date(data.start) : null;
     const f = data?.finish ? new Date(data.finish) : null;
     const validRange = s && f && !isNaN(s) && !isNaN(f) && f > s;
@@ -358,12 +275,13 @@
     document.getElementById('stat-start').textContent = data?.start || '—';
     document.getElementById('stat-end').textContent   = data?.finish || '—';
 
-    // --- Build tracker if dates valid
+    // Tracker elements
     const bar   = document.getElementById('tracker');
     const fill  = document.getElementById('tracker-fill');
     const today = document.getElementById('tracker-today');
     const pillP = document.getElementById('tracker-percent');
     const pillR = document.getElementById('tracker-range');
+    const popband = document.getElementById('tracker-popband');
 
     if (!validRange){
       pillP.textContent = 'Awaiting schedule';
@@ -389,7 +307,7 @@
     today.style.left = todayPct + '%';
     today.title = `Today • ${fmtISO(now)}`;
 
-    // --- Choose important milestones from tasks
+    // Milestones (keywords or short-duration tasks)
     const tasks = Array.isArray(data?.tasks) ? data.tasks : [];
     const KEY = /(report|submission|submit|mae|wdm|estimate|final|presentation|preferred|option|feasibility|member design|detailing|permitting)/i;
 
@@ -398,82 +316,42 @@
       .sort((a,b)=> new Date(a.finish) - new Date(b.finish))
       .slice(0, 12);
 
-    // Render markers (alternate above/below; stagger 3 tiers)
-    let nextTopTier = 0, nextBotTier = 0;
+    // Render markers
     milestones.forEach((m,i)=>{
-    const mEnd = new Date(m.finish);
-    const pos = Math.max(0, Math.min(100, ((mEnd - s)/(f - s))*100 ));
-    const el = document.createElement('div');
-    el.className = `mark ${i % 2 === 0 ? 'top' : 'bottom'}`;
-    el.style.left = pos + '%';
-    el.dataset.pos = String(pos);                      // <— store percent
-    el.dataset.text = `${m.task} • ${fmtISO(mEnd)}`;   // <— store label
-    el.setAttribute('tabindex','0');
-    el.setAttribute('role','button');
-    el.innerHTML = '<span class="label"></span>';      // we’re not using inline labels now
-    bar.appendChild(el);
+      const mEnd = new Date(m.finish);
+      const pos = clamp(((mEnd - s)/(f - s))*100, 0, 100);
+      const el = document.createElement('div');
+      el.className = 'mark';
+      el.style.left = pos + '%';
+      el.dataset.pos = String(pos);
+      el.dataset.text = `${m.task} • ${fmtISO(mEnd)}`;
+      el.setAttribute('tabindex','0');
+      el.setAttribute('role','button');
+      bar.appendChild(el);
     });
 
-    // Popup band controller
-    const popband = document.getElementById('tracker-popband');
+    // Popband logic
     function showPopupFor(mark){
-    if(!mark) return;
-    const left = mark.dataset.pos + '%';
-    const text = mark.dataset.text || '';
-    popband.innerHTML = `<div class="poplabel" style="left:${left}">${text}</div>`;
+      if(!mark) return;
+      const left = mark.dataset.pos + '%';
+      const text = mark.dataset.text || '';
+      popband.innerHTML = `<div class="poplabel" style="left:${left}">${text}</div>`;
     }
     function clearPopup(){ popband.innerHTML = ''; }
 
-    // Hover / focus shows the popup in the band
     bar.addEventListener('mouseover', e=>{
-    const m = e.target.closest('.mark'); if(m) showPopupFor(m);
+      const m = e.target.closest('.mark'); if(m) showPopupFor(m);
     });
     bar.addEventListener('focusin', e=>{
-    const m = e.target.closest('.mark'); if(m) showPopupFor(m);
+      const m = e.target.closest('.mark'); if(m) showPopupFor(m);
     });
-
-    // Click also shows (and keeps) it; clicking elsewhere clears
     bar.addEventListener('click', e=>{
-    const m = e.target.closest('.mark'); if(m) showPopupFor(m);
+      const m = e.target.closest('.mark'); if(m) showPopupFor(m);
     });
-    document.addEventListener('click', e=>{
-    if(!bar.contains(e.target)) clearPopup();
-    });
-
-    // Leaving the bar clears transient hover popups
     bar.addEventListener('mouseleave', clearPopup);
-    bar.addEventListener('focusout', (e)=>{
-    // if leaving the bar entirely, clear
-    if(!bar.contains(e.relatedTarget)) clearPopup();
-    });
+    document.addEventListener('click', (e)=>{ if(!bar.contains(e.target)) clearPopup(); });
 
-    // Tap/click to toggle one label at a time (force below when open)
-    bar.addEventListener('click', (e) => {
-      const m = e.target.closest('.mark');
-      if (!m) return;
-      bar.querySelectorAll('.mark.open').forEach(el => { if (el !== m) { el.classList.remove('open'); el.setAttribute('aria-expanded','false'); }});
-      const willOpen = !m.classList.contains('open');
-      m.classList.toggle('open');
-      m.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    });
-
-    // Keyboard support (Enter/Space)
-    bar.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      const m = e.target.closest('.mark');
-      if (!m) return;
-      e.preventDefault();
-      m.click();
-    });
-
-    // Dismiss if clicking outside
-    document.addEventListener('click', (e) => {
-      if (!bar.contains(e.target)) {
-        bar.querySelectorAll('.mark.open').forEach(el => { el.classList.remove('open'); el.setAttribute('aria-expanded','false'); });
-      }
-    });
-
-    // --- Overall progress wording
+    // Overall progress text
     const totalDays = Math.round(total/86400000)+1;
     const daysDone  = Math.round(elapsed/86400000)+1;
     document.getElementById('stat-days').textContent = `${pct}% • ${daysDone}/${totalDays} days`;
