@@ -21,7 +21,7 @@
       overflow-x: hidden;
       font-family: 'Roboto', sans-serif;
       background: linear-gradient(135deg, var(--bg-dark) 0%, #1e293b 100%);
-      touch-action: manipulation; /* Improve touch responsiveness */
+      touch-action: manipulation;
     }
 
     .construction-tracker-page {
@@ -42,17 +42,11 @@
       position: relative;
       overflow: hidden;
     }
-
     .header::before {
       content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--primary), var(--secondary));
     }
-
     .header h1 {
       font-family: 'Orbitron', sans-serif;
       font-size: clamp(1.5rem, 2.5vw, 1.8rem);
@@ -70,7 +64,6 @@
       margin-top: 0.75rem;
       font-size: 0.9rem;
     }
-
     .meta > div {
       background: rgba(17, 24, 39, 0.7);
       border: 1px solid var(--border);
@@ -78,15 +71,16 @@
       padding: 0.75rem;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
     .meta > div:hover {
       transform: translateY(-3px);
       box-shadow: 0 3px 12px rgba(0, 212, 180, 0.2);
     }
+    .meta strong { color: var(--primary); font-weight: 600; }
 
-    .meta strong {
-      color: var(--primary);
-      font-weight: 600;
+    /* status chip */
+    .badge {
+      display:inline-block; font-weight:700; letter-spacing:.2px;
+      padding: .25rem .6rem; border-radius:.4rem; border:1px solid rgba(255,255,255,.12);
     }
 
     .box {
@@ -99,7 +93,6 @@
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
       backdrop-filter: blur(8px);
     }
-
     h2 {
       font-family: 'Orbitron', sans-serif;
       font-size: 1.25rem;
@@ -109,14 +102,9 @@
     }
 
     .timeline-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      justify-content: center;
+      display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center;
+      margin-bottom: 0.75rem; justify-content: center;
     }
-
     .timeline-toolbar .ctl {
       background: var(--bg-dark);
       color: var(--text);
@@ -124,33 +112,22 @@
       border-radius: 0.5rem;
       padding: 0.6rem 1rem;
       font-size: 0.95rem;
-      font-family: 'Roboto', sans-serif;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
-      touch-action: manipulation;
       min-width: 80px;
       text-align: center;
     }
-
     .timeline-toolbar .ctl::before {
       content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
+      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
       background: linear-gradient(90deg, transparent, rgba(0, 212, 180, 0.2), transparent);
       transition: 0.4s;
     }
-
     .timeline-toolbar .ctl:hover::before,
-    .timeline-toolbar .ctl:active::before {
-      left: 100%;
-    }
-
+    .timeline-toolbar .ctl:active::before { left: 100%; }
     .timeline-toolbar .ctl:hover,
     .timeline-toolbar .ctl:active {
       transform: translateY(-2px);
@@ -168,102 +145,35 @@
       touch-action: pan-x pinch-zoom;
     }
 
-    .table-wrap {
-      width: 100%;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      border-radius: 0.5rem;
-      background: var(--bg-card);
-      padding: 0.25rem;
+    .table-wrap { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 0.5rem; background: var(--bg-card); padding: 0.25rem; }
+    .construction-tracker-page table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 600px; }
+    .construction-tracker-page th, .construction-tracker-page td {
+      border: 1px solid var(--border); padding: 0.7rem; vertical-align: top; color: var(--text);
     }
-
-    .construction-tracker-page table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      min-width: 600px;
-    }
-
-    .construction-tracker-page th,
-    .construction-tracker-page td {
-      border: 1px solid var(--border);
-      padding: 0.7rem;
-      vertical-align: top;
-      color: var(--text);
-    }
-
-    .construction-tracker-page th {
-      background: linear-gradient(180deg, var(--bg-dark) 0%, #162033 100%);
-      color: var(--primary);
-      text-align: left;
-      font-weight: 600;
-    }
-
-    .construction-tracker-page td {
-      background: rgba(17, 24, 39, 0.7);
-      transition: background 0.3s ease;
-    }
-
-    .construction-tracker-page tr:hover td {
-      background: rgba(17, 24, 39, 0.9);
-    }
+    .construction-tracker-page th { background: linear-gradient(180deg, var(--bg-dark) 0%, #162033 100%); color: var(--primary); text-align: left; font-weight: 600; }
+    .construction-tracker-page td { background: rgba(17, 24, 39, 0.7); transition: background 0.3s ease; }
+    .construction-tracker-page tr:hover td { background: rgba(17, 24, 39, 0.9); }
 
     .details {
-      margin-top: 0.75rem;
-      padding: 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: 0.5rem;
-      background: rgba(17, 24, 39, 0.7);
-      color: var(--text);
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(8px);
-      font-size: 0.9rem;
+      margin-top: 0.75rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: 0.5rem;
+      background: rgba(17, 24, 39, 0.7); color: var(--text); box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px); font-size: 0.9rem;
     }
 
-    /* Stack project info + controls vertically on mobile */
+    /* Mobile tweaks */
     @media (max-width: 900px){
-      /* header facts */
-      .meta{
-        grid-template-columns: 1fr !important; /* 1 column instead of 2/4 */
-      }
-
-      /* timeline controls */
-      .timeline-toolbar{
-        flex-direction: column;
-        align-items: stretch;     /* make buttons full-width */
-        gap: .5rem;
-      }
-      .timeline-toolbar .ctl{
-        width: 100%;
-      }
+      .meta { grid-template-columns: 1fr !important; }
+      .timeline-toolbar { flex-direction: column; align-items: stretch; gap: .5rem; }
+      .timeline-toolbar .ctl{ width:100%; }
     }
-
     @media (max-width: 720px) {
-      .meta {
-        grid-template-columns: 1fr;
-      }
-      .timeline-toolbar .ctl {
-        padding: 0.6rem 0.9rem;
-        font-size: 0.9rem;
-        min-width: 70px;
-      }
-      #timeline {
-        min-height: 320px;
-      }
-      .construction-tracker-page table {
-        font-size: 0.85rem;
-        min-width: 100%;
-      }
-      .construction-tracker-page th,
-      .construction-tracker-page td {
-        padding: 0.5rem;
-      }
-      .details {
-        font-size: 0.85rem;
-      }
-      h2 {
-        font-size: 1.1rem;
-      }
+      .meta { grid-template-columns: 1fr; }
+      .timeline-toolbar .ctl { padding: 0.6rem 0.9rem; font-size: 0.9rem; min-width: 70px; }
+      #timeline { min-height: 320px; }
+      .construction-tracker-page table { font-size: 0.85rem; min-width: 100%; }
+      .construction-tracker-page th, .construction-tracker-page td { padding: 0.5rem; }
+      .details { font-size: 0.85rem; }
+      h2 { font-size: 1.1rem; }
     }
   </style>
 {% endblock %}
@@ -277,7 +187,7 @@
       <div role="listitem"><strong>Start</strong><br><span id="proj-start"></span></div>
       <div role="listitem"><strong>Target Finish</strong><br><span id="proj-end"></span></div>
       <div role="listitem"><strong>Status</strong><br>
-        <span class="badge" style="background: var(--accent); padding: 0.25rem 0.6rem; border-radius: 0.4rem;">Planned</span>
+        <span id="status-badge" class="badge">Planned</span>
       </div>
     </div>
   </div>
@@ -324,7 +234,7 @@
 {% block extra_scripts %}
 <script>
 (async function(){
-  // 1) Load schedule with fallbacks
+  // ---- Load schedule (with fallbacks) ----
   async function loadSchedule(){
     const urls=['/api/schedule.json','/schedule.json','{{ url_for("static", filename="schedule.json") }}'];
     for (const u of urls){ try{const r=await fetch(u,{cache:'no-store'}); if(r.ok) return r.json();}catch(e){} }
@@ -332,13 +242,13 @@
   }
   const sched = await loadSchedule();
 
-  // 2) Header
+  // ---- Header basics ----
   document.getElementById('proj-title').textContent = sched.project || 'Project';
   document.getElementById('proj-manager').textContent = sched.manager || '';
   document.getElementById('proj-start').textContent  = sched.start  || '';
   document.getElementById('proj-end').textContent    = sched.finish || '';
 
-  // 3) Normalize tasks
+  // ---- Normalize tasks ----
   const toISO = v => v ? new Date(v).toISOString().slice(0,10) : null;
   const addDays=(iso,d)=>{const x=new Date(iso);x.setDate(x.getDate()+d);return x.toISOString().slice(0,10);};
 
@@ -366,15 +276,15 @@
     document.getElementById('details').innerHTML = '<em>No schedule.json found — showing sample timeline.</em>';
   }
 
-  // 4) Fill details table
+  // ---- Fill table (we’ll overwrite the "Schedule" cell automatically below) ----
   const tbody=document.getElementById('task-table-body');
   tasks.forEach(t=>{
     const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${t.phase}</td><td>${t.task}</td><td>${t.start}</td><td>${t.finish}</td><td>${t.duration??''}</td><td>${t.resources}</td><td>${t.schedule}</td>`;
+    tr.innerHTML=`<td>${t.phase}</td><td>${t.task}</td><td>${t.start}</td><td>${t.finish}</td><td>${t.duration??''}</td><td>${t.resources}</td><td class="auto-status">—</td>`;
     tbody.appendChild(tr);
   });
 
-  // 5) Build a single-series rangeBar
+  // ---- Chart data ----
   const phaseColor = {
     'Conceptual Design': '#00d4b4',
     'Preliminary Design': '#22c55e',
@@ -391,34 +301,17 @@
   const allStarts=points.map(p=>p.y[0]), allEnds=points.map(p=>p.y[1]);
   const minX=Math.min(...allStarts), maxX=Math.max(...allEnds), PAD=2*24*3600*1000;
 
-  // --- REPLACE this whole block (isMobile/rowH/chartHeight + add dynamic yAxisWidth) ---
+  // y-axis width sizing (avoid clipping long labels)
   const isMobile = window.matchMedia('(max-width:720px)').matches;
-  const rowH = isMobile ? 36 : 40;
-  const chartHeight = Math.max(isMobile ? 320 : 480, points.length * rowH + 100);
-
-  // Measure longest label to size Y-axis appropriately
   function computeYAxisWidthPx(labels, fontPx, minPx, capPx){
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    // Match Apex label font
     ctx.font = `${fontPx}px Roboto, sans-serif`;
-    let max = 0;
-    for (const s of labels) {
-      const { width } = ctx.measureText(String(s ?? ''));
-      if (width > max) max = width;
-    }
-    // Add small padding to avoid tight clipping
-    const padded = Math.ceil(max + 16);
-    return Math.min(Math.max(padded, minPx), capPx);
+    let max = 0; for (const s of labels) { max = Math.max(max, ctx.measureText(String(s||'')).width); }
+    return Math.min(Math.max(Math.ceil(max + 16), minPx), capPx);
   }
-
-  const yAxisWidth = computeYAxisWidthPx(
-    tasks.map(t => t.task),
-    isMobile ? 11 : 12,          // match label font-size below
-    isMobile ? 120 : 160,        // sensible minimums
-    400                          // allow long labels without truncation
-  );
-
+  const yAxisWidth = computeYAxisWidthPx(tasks.map(t=>t.task), isMobile?11:12, isMobile?120:160, 400);
+  const chartHeight = Math.max(isMobile ? 320 : 480, points.length * (isMobile?36:40) + 100);
 
   const options={
     chart:{
@@ -426,18 +319,8 @@
       height:chartHeight,
       background:'transparent',
       foreColor: '#e5e7eb',
-      toolbar:{
-        show: true,
-        tools:{download:false,selection:true,zoom:true,zoomin:true,zoomout:true,pan:true,reset:true},
-        autoSelected:'pan'
-      },
-      animations:{
-        enabled: true,
-        easing:'easeinout',
-        speed: 500,
-        animateGradually:{enabled: true, delay: 100},
-        dynamicAnimation:{enabled: true, speed: 300}
-      },
+      toolbar:{ show:true, tools:{download:false,selection:true,zoom:true,zoomin:true,zoomout:true,pan:true,reset:true}, autoSelected:'pan' },
+      animations:{ enabled:true, easing:'easeinout', speed:500, animateGradually:{enabled:true,delay:100}, dynamicAnimation:{enabled:true,speed:300} },
       events:{
         dataPointSelection:function(event,ctx,config){
           const dp = ctx.w.config.series[0].data[config.dataPointIndex];
@@ -450,55 +333,39 @@
               <div><strong style="color:var(--primary)">Finish</strong><br>${d.finish||'—'}</div>
               <div><strong style="color:var(--primary)">Duration</strong><br>${d.duration??'—'} days</div>
               <div><strong style="color:var(--primary)">Resources</strong><br>${d.resources||'—'}</div>
-              <div style="grid-column:1/-1;"><strong style="color:var(--primary)">Schedule</strong><br>${d.schedule||'—'}</div>
+              <div style="grid-column:1/-1;"><strong style="color:var(--primary)">Schedule</strong><br>${computeRowStatus(d)}</div>
             </div>`;
         }
       },
-      zoom:{enabled: true, type:'x', autoScaleYaxis: false}
+      zoom:{enabled:true, type:'x', autoScaleYaxis:false}
     },
     series:[{ name:'Timeline', data: points }],
-    legend:{ show: false },
-    plotOptions:{
-      bar:{
-        horizontal: true,
-        barHeight: isMobile ? '70%' : '60%',
-        rangeBarGroupRows: false,
-        borderRadius: 6,
-        colors:{ ranges: [] }
-      }
-    },
+    legend:{ show:false },
+    plotOptions:{ bar:{ horizontal:true, barHeight:isMobile?'70%':'60%', rangeBarGroupRows:false, borderRadius:6, colors:{ ranges:[] } } },
     xaxis:{
-      type:'datetime',
-      min:minX-PAD, max:maxX+PAD,
+      type:'datetime', min:minX-PAD, max:maxX+PAD,
       labels:{ datetimeUTC:false, style:{colors:'#e5e7eb', fontFamily:'Roboto', fontSize:isMobile?'11px':'12px'} },
-      axisTicks:{ color: '#2a3447' },
-      axisBorder:{ color: '#2a3447' }
+      axisTicks:{ color: '#2a3447' }, axisBorder:{ color: '#2a3447' }
     },
     yaxis: {
       labels: {
-        // Use the dynamic width we computed
         maxWidth: yAxisWidth,
-        // No truncation: show full text
         formatter: function (val) { return val; },
-        style: {
-          colors: '#e5e7eb',
-          fontSize: isMobile ? '11px' : '12px',
-          fontFamily: 'Roboto, sans-serif'
-        }
+        style: { colors:'#e5e7eb', fontSize:isMobile?'11px':'12px', fontFamily:'Roboto, sans-serif' }
       }
     },
-    grid:{ borderColor: '#2a3447', strokeDashArray: 4 },
+    grid:{ borderColor:'#2a3447', strokeDashArray:4 },
     dataLabels:{
-      enabled: true,
+      enabled:true,
       formatter:(val,{dataPointIndex,w})=>{
         const meta=w.config.series[0].data[dataPointIndex].meta;
         return meta && meta.duration ? meta.duration+'d' : '';
       },
-      style:{ colors:['#0a0e1c'], fontWeight: 700, fontFamily:'Roboto', fontSize:isMobile?'10px':'11px' },
-      background:{ enabled: true, borderRadius: 4, opacity: 0.9, foreColor: '#e5e7eb' }
+      style:{ colors:['#0a0e1c'], fontWeight:700, fontFamily:'Roboto', fontSize:isMobile?'10px':'11px' },
+      background:{ enabled:true, borderRadius:4, opacity:0.9, foreColor:'#e5e7eb' }
     },
     tooltip:{
-      theme: 'dark',
+      theme:'dark',
       x:{ format:'yyyy-MM-dd' },
       y:{ formatter:(val,opts)=>{ 
         const [s,e]=opts.w.config.series[0].data[opts.dataPointIndex].y;
@@ -507,14 +374,8 @@
         return `${fmt(s)} → ${fmt(e)} (${d.duration??'—'}d)`; 
       } }
     },
-    fill:{ 
-      type:'gradient', 
-      gradient:{ shade:'dark', shadeIntensity:0.3, inverseColors:false, opacityFrom:0.95, opacityTo:0.85, stops:[0,100], gradientToColors:[ '#22c55e' ] } 
-    },
-    states:{ 
-      hover:{ filter:{ type:'lighten', value:0.05 } }, 
-      active:{ filter:{ type:'none' } } 
-    },
+    fill:{ type:'gradient', gradient:{ shade:'dark', shadeIntensity:0.3, inverseColors:false, opacityFrom:0.95, opacityTo:0.85, stops:[0,100], gradientToColors:[ '#22c55e' ] } },
+    states:{ hover:{ filter:{ type:'lighten', value:0.05 } }, active:{ filter:{ type:'none' } } },
     annotations:{ xaxis:[] }
   };
 
@@ -522,21 +383,95 @@
   const chart=new ApexCharts(el, options);
   await chart.render();
 
-  // 6) Controls
+  // ---- Controls ----
   document.getElementById('btn-fit').addEventListener('click', (e)=>{
     e.preventDefault();
     chart.updateOptions({ xaxis:{ min:minX-PAD, max:maxX+PAD }, annotations:{ xaxis:[] } }, true, true);
   }, { passive: false });
+
   document.getElementById('btn-today').addEventListener('click', (e)=>{
     e.preventDefault();
     const now=Date.now(), span=(maxX-minX)/4;
     chart.updateOptions({
       xaxis:{ min: now-span, max: now+span },
-      annotations:{ xaxis:[{ x:now, strokeDashArray:4, borderColor: '#f59e0b', label:{ text:'Today', style:{ background: '#f59e0b', color: '#0a0e1c', fontFamily:'Roboto' } } }] }
+      annotations:{ xaxis:[{ x:now, strokeDashArray:4, borderColor:'#f59e0b', label:{ text:'Today', style:{ background:'#f59e0b', color:'#0a0e1c', fontFamily:'Roboto' } } }] }
     }, true, true);
   }, { passive: false });
 
   window.addEventListener('resize', ()=>chart.resize(), { passive: true });
+
+  // ===== Auto Status Logic =====
+  const statusBadge = document.getElementById('status-badge');
+  const projectStart = sched.start ? new Date(sched.start) : null;
+  const projectFinish = sched.finish ? new Date(sched.finish) : null;
+  const MS_DAY = 86400000;
+
+  function clamp(n,min,max){ return Math.min(max,Math.max(min,n)); }
+  function daysBetween(a,b){ return Math.max(0, Math.round((b - a)/MS_DAY)); }
+
+  function computeProjectStatus(){
+    if(!projectStart || !projectFinish || isNaN(projectStart) || isNaN(projectFinish)){
+      return { text:'Planned', bg:'#334155', fg:'#e5e7eb' };
+    }
+    const now = new Date();
+    const total = Math.max(1, projectFinish - projectStart);
+    const elapsed = clamp(now - projectStart, 0, total);
+    const pct = Math.round((elapsed/total)*100);
+
+    if (now < projectStart){
+      const daysToStart = daysBetween(now, projectStart);
+      return { text:`Planned — starts in ${daysToStart}d`, bg:'#1e293b', fg:'#e5e7eb' };
+    } else if (now > projectFinish){
+      return { text:'Complete (per plan)', bg:'#16a34a', fg:'#041014' };
+    } else {
+      return { text:`In Progress — ${pct}%`, bg:'#22c55e', fg:'#041014' };
+    }
+  }
+
+  function paintBadge(s){
+    statusBadge.textContent = s.text;
+    statusBadge.style.background = s.bg;
+    statusBadge.style.color = s.fg;
+    statusBadge.style.borderColor = 'rgba(255,255,255,.12)';
+  }
+
+  // NEW: no “Late”—just Done / In Progress / Upcoming
+  function computeRowStatus(t){
+    const now = new Date();
+    const s = new Date(t.start), e = new Date(t.finish);
+    if (now < s) return 'Upcoming';
+    if (now > e) return 'Done';
+    return 'In Progress';
+  }
+
+  function paintRowStatuses(){
+    const rows = document.querySelectorAll('#task-table-body tr');
+    rows.forEach((tr,i)=>{
+      const cell = tr.querySelector('.auto-status');
+      if(!cell) return;
+      const v = computeRowStatus(tasks[i]);
+      cell.textContent = v;
+      // Color cues: Done = green, In Progress = teal/blue, Upcoming = slate
+      if (v==='Done'){
+        cell.style.color = '#86efac';   // green-300
+      } else if (v==='In Progress'){
+        cell.style.color = '#7dd3fc';   // sky-300
+      } else {
+        cell.style.color = '#a3aed0';   // slate-ish
+      }
+      cell.style.fontWeight = '700';
+    });
+  }
+
+  function tickStatus(){
+    paintBadge(computeProjectStatus());
+    paintRowStatuses();
+  }
+
+  // initial + refresh every 60s (handles midnight rollovers)
+  tickStatus();
+  setInterval(tickStatus, 60000);
+
 })();
 </script>
 {% endblock %}
