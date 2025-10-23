@@ -1,122 +1,127 @@
-<!-- templates/drive.html -->
 {% extends "base.html" %}
-{% block title %}Project Files — Google Drive{% endblock %}
+{% block title %}Project Files — Drive + Showreel Split{% endblock %}
 
 {% block extra_head %}
 <style>
-    /* ---------- PAGE LAYOUT ---------- */
-    .drive-page{
-    max-width:1200px;
-    margin:1.2rem auto;
-    padding:0 .75rem;
-    }
+  /* ---------- PAGE ---------- */
+  .drive-page{max-width:1200px;margin:1.2rem auto;padding:0 .75rem}
 
-    /* ---------- HEADER ---------- */
-    .drive-head{
+  .drive-head{
     background:
-        radial-gradient(900px 300px at 0% 0%, rgba(0,209,178,.12), transparent 60%),
-        radial-gradient(800px 260px at 120% 0%, rgba(59,130,246,.10), transparent 60%),
-        var(--panel);
-    border:var(--line);
-    border-radius:var(--radius);
+      radial-gradient(900px 300px at 0% 0%, rgba(0,209,178,.12), transparent 60%),
+      radial-gradient(800px 260px at 120% 0%, rgba(59,130,246,.10), transparent 60%),
+      var(--panel);
+    border:var(--line); border-radius:var(--radius);
     padding:clamp(1rem,2.2vw,1.35rem);
     margin-bottom:1rem;
     box-shadow:0 10px 28px rgba(0,0,0,.20);
-    }
-    .drive-head h1{
-    margin:0 0 .35rem;
-    font-size:clamp(1.55rem,2.8vw,2rem);
-    letter-spacing:.2px;
-    }
-    .drive-head .muted{ color:var(--muted); }
+  }
+  .drive-head h1{margin:0 0 .35rem;font-size:clamp(1.55rem,2.8vw,2rem);letter-spacing:.2px}
+  .drive-head .muted{ color:var(--muted); }
 
-    /* ---------- TOOLBAR ---------- */
-    .bar{
-    display:flex;
-    flex-wrap:wrap;
-    gap:.6rem;
-    align-items:center;
-    margin-top:.85rem;
-    }
-
-    #flip-entry-title{
-        color: #fff;
-    }
-
-    /* Pills */
-    .btn-pill{
-    display:inline-flex;
-    gap:.48rem;
-    align-items:center;
-    border:var(--line);
-    background:#0b1220;
-    color:#e5e7eb;
-    border-radius:999px;
-    padding:.48rem .85rem;
+  /* ---------- TOOLBAR ---------- */
+  .bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:.85rem}
+  .btn-pill{
+    display:inline-flex;gap:.48rem;align-items:center;
+    border:var(--line); background:#0b1220; color:#e5e7eb;
+    border-radius:999px; padding:.48rem .85rem;
     box-shadow:0 2px 10px rgba(0,0,0,.15);
     transition:transform .12s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
-    }
-    .btn-pill:hover{
-    transform:translateY(-1px);
-    box-shadow:0 10px 24px rgba(0,0,0,.28);
-    }
-    .btn-pill:active{
-    transform:translateY(0);
-    }
-    .btn-pill[aria-pressed="true"]{
-    background:linear-gradient(90deg,#00d4b4,#22c55e);
-    color:#051015;
-    border-color:transparent;
-    font-weight:800;
-    }
-    .btn-pill:focus-visible{
-    outline:2px solid #22c55e;
-    outline-offset:2px;
-    box-shadow:0 0 0 4px rgba(34,197,94,.15), 0 10px 24px rgba(0,0,0,.28);
-    }
+  }
+  .btn-pill:hover{transform:translateY(-1px);box-shadow:0 10px 24px rgba(0,0,0,.28)}
+  .btn-pill[aria-pressed="true"]{
+    background:linear-gradient(90deg,#00d4b4,#22c55e); color:#051015; border-color:transparent; font-weight:800;
+  }
+  .btn-pill:focus-visible{outline:2px solid #22c55e; outline-offset:2px}
 
-    /* ---------- EMBED WRAPPER ---------- */
-    .frame-wrap{
+  /* ---------- ALWAYS-ON SPLIT (NO DRAG) ---------- */
+  .split-wrap{
     background:var(--bg-soft,#0b1220);
     border:var(--line,1px solid #243244);
-    border-radius:14px;
-    overflow:hidden;
+    border-radius:14px; overflow:hidden;
     box-shadow:0 14px 36px rgba(0,0,0,.25);
-    }
 
-    /* iframe sizing: tall on desktop, comfy on mobile */
-    .frame{
+    display:grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: minmax(420px, 78vh);
+    gap:0;
+  }
+  .split-left, .split-right{position:relative; min-width:0}
+
+  /* Video pane */
+  .reel-stage{position:absolute; inset:0; padding:clamp(.5rem,1.5vw,1rem); display:grid; place-items:center}
+  .reel-inner{
+    width:100%; height:100%; aspect-ratio:9/16; /* Shorts are vertical */
+    max-height:100%; border-radius:12px; overflow:hidden;
+    box-shadow:0 22px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06) inset;
+    background:#000; display:block;
+  }
+  .reel-iframe{width:100%; height:100%; border:0; display:block}
+
+  /* Drive pane */
+  .drive-iframe{width:100%; height:100%; border:0; display:block}
+
+  /* ---------- MOBILE: TABS (no side scroll) ---------- */
+  @media (max-width:900px){
+    .split-wrap{display:block}
+    .mobile-tabs{
+      display:flex; gap:.5rem; padding:.5rem; justify-content:center; border-bottom:var(--line);
+      background:#0b1220;
+    }
+    .tab-btn{
+      display:inline-flex; align-items:center; gap:.4rem;
+      border:var(--line); background:#0e1728; color:#cbd5e1;
+      border-radius:999px; padding:.38rem .7rem;
+    }
+    .tab-btn[aria-pressed="true"]{
+      background:linear-gradient(90deg,#00d4b4,#22c55e); color:#051015; border-color:transparent; font-weight:800;
+    }
+    .pane{display:none}
+    .pane.active{display:block}
+    .split-left.pane{padding:.5rem}
+    .split-right.pane{padding:.5rem}
+    .reel-inner{aspect-ratio:9/16; height:auto; width:100%}
+    .drive-iframe{height:65vh}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .btn-pill, .btn-pill:hover{transition:none; transform:none}
+  }
+
+  @media (max-width:900px){
+  /* Stop absolute positioning so it can size naturally */
+  .reel-stage{
+    position:relative;
+    inset:auto;
+    padding:.5rem;            /* keep some breathing room */
+    min-height:65vh;          /* make sure it’s visible */
+    display:block;            /* no centering grid needed here */
+  }
+
+  /* Aspect-ratio wrapper handles sizing */
+  .reel-inner{
     width:100%;
-    height:min(78vh, 900px);
-    border:0;
-    display:block;
-    }
-    @media (max-width:980px){
-    .frame{ height:72vh; }
-    }
-    @media (max-width:720px){
-    .frame{ height:64vh; }
-    }
-
-    /* ---------- TIP BOX ---------- */
-    .tips{
-    margin-top:1rem;
-    background:#0b1220;
-    border:var(--line,1px solid #243244);
-    border-left:4px solid var(--accent,#f59e0b);
+    height:auto;
+    aspect-ratio:9/16;        /* vertical Shorts */
+    max-height:none;
     border-radius:12px;
-    padding:.85rem 1rem;
-    color:#cbd5e1;
-    box-shadow:0 8px 22px rgba(0,0,0,.2);
-    }
-    .tips strong{ color:#e5e7eb; }
+    overflow:hidden;
+  }
 
-    /* ---------- ACCESSIBILITY / POLISH ---------- */
-    @media (prefers-reduced-motion:reduce){
-    .btn-pill,
-    .btn-pill:hover{ transition:none; transform:none; }
-    }
-                        
+  /* Make the iframe fill the wrapper */
+  .reel-iframe{
+    width:100%;
+    height:100%;
+    display:block;
+  }
+
+  /* Ensure the pane itself isn't collapsing */
+  .split-left.pane{ 
+    padding:.5rem;
+    min-height: calc(65vh + 1rem); /* matches the .reel-stage min-height */
+  }
+}
+
 </style>
 {% endblock %}
 
@@ -125,11 +130,10 @@
   <div class="drive-head">
     <h1 style="margin:0 0 .25rem">Project Files</h1>
     <p class="muted" style="margin:0">
-      Browse shared documents, drawings, and exports. You can switch between <strong>Grid</strong> and <strong>List</strong> views below.
-      (If something doesn’t load, open the folder directly in Drive.)
+      Watch the site video while browsing the folder. Switch Drive between <strong>Grid</strong> and <strong>List</strong>.
     </p>
     <div class="bar">
-      <!-- View toggles -->
+      <!-- Drive view toggles -->
       <button id="btn-grid" class="btn-pill" aria-pressed="true">🟩 Grid</button>
       <button id="btn-list" class="btn-pill" aria-pressed="false">📄 List</button>
 
@@ -140,15 +144,39 @@
     </div>
   </div>
 
-  <div class="frame-wrap">
-    <!-- Embed: change #grid ⇄ #list via buttons -->
-    <iframe id="driveFrame"
-      class="frame"
-      src="https://drive.google.com/embeddedfolderview?id=13-EPpJMhM_D1-M6jrzEHf1Z02P_vDksP#grid"
-      allow="fullscreen"
-      loading="lazy"
-      title="Embedded Google Drive folder">
-    </iframe>
+  <!-- Always-on split (no draggable) -->
+  <div class="split-wrap">
+    <!-- Mobile tabs -->
+    <div class="mobile-tabs" id="mobileTabs" hidden>
+      <button id="tabVideo" class="tab-btn" aria-pressed="true">🎬 Video</button>
+      <button id="tabDrive" class="tab-btn" aria-pressed="false">📁 Drive</button>
+    </div>
+
+    <!-- Video pane -->
+    <div class="split-left pane active" id="paneVideo">
+      <div class="reel-stage">
+        <div class="reel-inner">
+          <iframe
+            id="reelIframe"
+            class="reel-iframe"
+            src="https://www.youtube.com/embed/qG3-Fz2hYoI?modestbranding=1&rel=0&playsinline=1&autoplay=1&mute=1"
+            title="Tsolum River — Site Visit (Shorts)"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drive pane -->
+    <div class="split-right pane" id="paneDrive">
+      <iframe id="driveFrame"
+              class="drive-iframe"
+              src="https://drive.google.com/embeddedfolderview?id=13-EPpJMhM_D1-M6jrzEHf1Z02P_vDksP#grid"
+              allow="fullscreen"
+              loading="lazy"
+              title="Embedded Google Drive folder"></iframe>
+    </div>
   </div>
 </section>
 {% endblock %}
@@ -157,28 +185,59 @@
 <script>
 (function(){
   const FOLDER_ID = '13-EPpJMhM_D1-M6jrzEHf1Z02P_vDksP';
-  const frame = document.getElementById('driveFrame');
+  const driveFrame = document.getElementById('driveFrame');
   const btnGrid = document.getElementById('btn-grid');
   const btnList = document.getElementById('btn-list');
 
-  function setView(view){
+  /* Drive: grid/list toggle */
+  function setDriveView(view){
     const base = `https://drive.google.com/embeddedfolderview?id=${FOLDER_ID}`;
-    frame.src = `${base}#${view}`;
+    driveFrame.src = `${base}#${view}`;
     btnGrid.setAttribute('aria-pressed', view === 'grid');
     btnList.setAttribute('aria-pressed', view === 'list');
     try{ localStorage.setItem('driveView', view); }catch(e){}
   }
+  (function initDriveView(){
+    let v = 'grid';
+    try{
+      const s = localStorage.getItem('driveView');
+      if (s === 'list' || s === 'grid') v = s;
+    }catch(e){}
+    setDriveView(v);
+  })();
+  btnGrid.addEventListener('click', ()=> setDriveView('grid'));
+  btnList.addEventListener('click', ()=> setDriveView('list'));
 
-  // Restore last view
-  let view = 'grid';
-  try{
-    const v = localStorage.getItem('driveView');
-    if (v === 'list' || v === 'grid') view = v;
-  }catch(e){}
-  setView(view);
+  /* Mobile tabs */
+  const mobileTabs = document.getElementById('mobileTabs');
+  const tabVideo   = document.getElementById('tabVideo');
+  const tabDrive   = document.getElementById('tabDrive');
+  const paneVideo  = document.getElementById('paneVideo');
+  const paneDrive  = document.getElementById('paneDrive');
 
-  btnGrid.addEventListener('click', ()=> setView('grid'));
-  btnList.addEventListener('click', ()=> setView('list'));
+  function updateMobileMode(){
+    const mobile = window.matchMedia('(max-width: 900px)').matches;
+    mobileTabs.hidden = !mobile;
+    if (mobile){
+      setTab('video'); // default to Video
+    }else{
+      // both panes visible on desktop
+      paneVideo.classList.add('active');
+      paneDrive.classList.add('active');
+    }
+  }
+  function setTab(which){
+    const isVideo = which === 'video';
+    tabVideo?.setAttribute('aria-pressed', isVideo ? 'true' : 'false');
+    tabDrive?.setAttribute('aria-pressed', isVideo ? 'false' : 'true');
+    paneVideo.classList.toggle('active', isVideo);
+    paneDrive.classList.toggle('active', !isVideo);
+  }
+  tabVideo?.addEventListener('click', ()=> setTab('video'));
+  tabDrive?.addEventListener('click', ()=> setTab('drive'));
+
+  updateMobileMode();
+  window.addEventListener('resize', updateMobileMode, {passive:true});
 })();
 </script>
 {% endblock %}
