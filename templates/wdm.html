@@ -191,8 +191,8 @@
               <th>Metric</th>
               <th>Weight</th>
               <th>Arch</th>
-              <th>Hybrid Suspension</th>
-              <th>Extra-Dosed Cable-Stayed</th>
+              <th>Suspension</th>
+              <th>Cable-Stay</th>
             </tr>
           </thead>
           <tbody id="wdmTableBody"></tbody>
@@ -222,7 +222,7 @@
 <script>
 (function(){
   const BAR_COLORS = ['#3b82f6', '#22c55e', '#f59e0b']; // Arch, Hybrid, Extra
-  const NAMES = ['Arch','Hybrid Suspension','Extra-Dosed Cable-Stayed'];
+  const NAMES = ['Arch','Suspension','Cable-Stay'];
 
     
   // --- Base metric list and team default weights (scaled to 0..10 for sliders)
@@ -329,7 +329,7 @@
     document.getElementById('totA').textContent = totA.toFixed(2);
     document.getElementById('totH').textContent = totH.toFixed(2);
     document.getElementById('totE').textContent = totE.toFixed(2);
-    const order = [{n:'Arch',v:totA},{n:'Hybrid Suspension',v:totH},{n:'Extra-Dosed Cable-Stayed',v:totE}].sort((a,b)=>b.v-a.v);
+    const order = [{n:'Arch',v:totA},{n:'Suspension',v:totH},{n:'Cable-Stay',v:totE}].sort((a,b)=>b.v-a.v);
     document.getElementById('winnerPill').textContent = `${order[0].n} • ${order[0].v.toFixed(2)}`;
 
     // Chart
